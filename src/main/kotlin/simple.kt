@@ -41,6 +41,8 @@ fun animate() {
     val delta = clock.getDelta().toDouble()
 
     earth.rotation.y += delta / PI / 10
+    moon.rotation.y += delta / PI / 10
+    moonOrbit.rotation.y += delta / PI / 10
 
     renderer.render(scene, camera)
 
@@ -51,7 +53,7 @@ operator fun Number.minus(other: Double) = toDouble() - other
 operator fun Number.plus(other: Double) = toDouble() + other
 
 val clock = Clock()
-val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 1000).apply {
+val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 2000).apply {
     position.z = 5
 }
 
@@ -62,13 +64,19 @@ val renderer = WebGLRenderer().apply {
 }
 val texLoader = TextureLoader()
 val earthTex = texLoader.load("1_earth_16k.jpg")
-val starsTex = texLoader.load("space.jpg")
-@JsName("earth")
+val moonTex = texLoader.load("8k_moon.jpg")
+val starsTex = texLoader.load("tycho_skymap.jpg")
 val earth = Mesh(SphereGeometry(2, 100, 100), MeshStandardMaterial().apply { map = earthTex }).apply {
     rotation.y = PI
 }
-@JsName("stars")
-val stars = Mesh(SphereGeometry(100, 30, 30), MeshBasicMaterial().apply {
+val moon = Mesh(SphereGeometry(1, 100, 100), MeshStandardMaterial().apply { map = moonTex }).apply {
+    position.x = -10
+    rotation.y = -PI/8
+}
+val moonOrbit = Object3D().apply{
+    add(moon)
+}
+val stars = Mesh(SphereGeometry(1000, 30, 30), MeshBasicMaterial().apply {
     map = starsTex
     side = BackSide
 })
@@ -76,7 +84,7 @@ val stars = Mesh(SphereGeometry(100, 30, 30), MeshBasicMaterial().apply {
 val scene = Scene().apply {
     add(stars)
     add(earth)
+    add(moonOrbit)
 
     add(DirectionalLight(0xffffff, 1).apply { position.set(5, 0.5, 5) })
-//    add(AmbientLight(0x404040, 1))
 }
