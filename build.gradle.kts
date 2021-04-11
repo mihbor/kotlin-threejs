@@ -22,6 +22,9 @@ kotlin {
                 cssSupport.enabled = true
             }
         }
+        compilations["main"].packageJson {
+            customField("homepage", "https://mihbor.github.io/kotlin-threejs")
+        }
     }
 }
 
