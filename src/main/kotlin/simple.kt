@@ -26,17 +26,6 @@ fun main() {
 
     animate()
 }
-fun wheelHandler(event: Event) {
-    if (event is WheelEvent) {
-        event.preventDefault()
-        if (event.ctrlKey) {
-            camera.position.z += event.deltaY / 100
-        } else {
-            camera.rotation.x += event.deltaY / PI / 100
-            camera.rotation.y += event.deltaX / PI / 100
-        }
-    }
-}
 fun animate() {
     val delta = clock.getDelta().toDouble()
 
@@ -48,13 +37,24 @@ fun animate() {
 
     window.requestAnimationFrame { animate() }
 }
+fun wheelHandler(event: Event) {
+    if (event is WheelEvent) {
+        event.preventDefault()
+        if (event.ctrlKey) {
+            camera.position.z += event.deltaY * 10
+        } else {
+            camera.rotation.x += event.deltaY / PI / 100
+            camera.rotation.y += event.deltaX / PI / 100
+        }
+    }
+}
 
 operator fun Number.minus(other: Double) = toDouble() - other
 operator fun Number.plus(other: Double) = toDouble() + other
 
 val clock = Clock()
-val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 2000).apply {
-    position.z = 5
+val camera = PerspectiveCamera(75, window.aspectRatio, 1, 2e9).apply {
+    position.z = 10e3
 }
 
 val renderer = WebGLRenderer().apply {
@@ -63,20 +63,31 @@ val renderer = WebGLRenderer().apply {
     setPixelRatio(window.devicePixelRatio)
 }
 val texLoader = TextureLoader()
-val earthTex = texLoader.load("1_earth_16k.jpg")
+val earthTex = texLoader.load("1_earth_8k.jpg")
 val moonTex = texLoader.load("8k_moon.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
-val earth = Mesh(SphereGeometry(2, 100, 100), MeshStandardMaterial().apply { map = earthTex }).apply {
+val earth = Mesh(SphereGeometry(6378.137, 100, 100), MeshStandardMaterial().apply { map = earthTex }).apply {
     rotation.y = PI
+    scale.y = 6356.752/6378.137
+    repeat(5) {
+        val atmosphere = Mesh(SphereGeometry(6378.137 + 20 + 20*it, 100, 100), MeshStandardMaterial().apply {
+            color = Color(0xffffff)
+            transparent = true
+            opacity = 0.1
+        })
+        add(atmosphere)
+    }
 }
-val moon = Mesh(SphereGeometry(1, 100, 100), MeshStandardMaterial().apply { map = moonTex }).apply {
-    position.x = -10
-    rotation.y = -PI/8
+val moon = Mesh(SphereGeometry(1738.1, 100, 100), MeshStandardMaterial().apply { map = moonTex }).apply {
+    position.x = -300e3
+    rotation.y = -PI/4
+    scale.y = 1736/1738.1
 }
 val moonOrbit = Object3D().apply{
     add(moon)
+    rotation.y = -PI/4
 }
-val stars = Mesh(SphereGeometry(1000, 30, 30), MeshBasicMaterial().apply {
+val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
     map = starsTex
     side = BackSide
 })
