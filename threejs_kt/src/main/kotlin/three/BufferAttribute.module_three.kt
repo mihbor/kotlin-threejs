@@ -29,11 +29,6 @@ external interface `T$2` {
     var b: Number
 }
 
-external interface `T$3` {
-    var x: Number
-    var y: Number
-}
-
 external interface `T$4` {
     var x: Number
     var y: Number
@@ -72,7 +67,7 @@ open external class BufferAttribute(array: ArrayLike<Number>, itemSize: Number, 
     open fun copyAt(index1: Number, attribute: BufferAttribute, index2: Number): BufferAttribute /* this */
     open fun copyArray(array: ArrayLike<Number>): BufferAttribute /* this */
     open fun copyColorsArray(colors: Array<`T$2`>): BufferAttribute /* this */
-    open fun copyVector2sArray(vectors: Array<`T$3`>): BufferAttribute /* this */
+    open fun copyVector2sArray(vectors: Array<Vector2>): BufferAttribute /* this */
     open fun copyVector3sArray(vectors: Array<`T$4`>): BufferAttribute /* this */
     open fun copyVector4sArray(vectors: Array<`T$5`>): BufferAttribute /* this */
     open fun applyMatrix3(m: Matrix3): BufferAttribute /* this */
