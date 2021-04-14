@@ -35,6 +35,8 @@ fun main() {
     }
     document.addEventListener("wheel", ::wheelHandler, options)
     document.addEventListener("click", ::clickHandler, false)
+    document.addEventListener("touchstart", ::touchStartHandler, options)
+    document.addEventListener("touchmove", ::touchMoveHandler, options)
 
     animate()
 }
@@ -54,49 +56,10 @@ fun animate() {
 
     window.requestAnimationFrame { animate() }
 }
-fun wheelHandler(event: Event) {
-    if (event is WheelEvent) {
-        event.preventDefault()
-        if (event.ctrlKey) {
-            val direction = Vector3();
-            val focusedPosition = Vector3().apply(focused::getWorldPosition)
-            camera.getWorldDirection( direction );
-            val radius = focused.geometry.parameters.radius
-            val newPosition = camera.position.clone().add(
-                direction.multiplyScalar((camera.position.clone().sub(focusedPosition).length() - radius) * event.deltaY / -100)
-            )
-            if (newPosition.clone().sub(focusedPosition).length() > radius + 100.0 && newPosition.length() < 1e8) {
-                camera.position.copy(newPosition)
-            }
-        } else {
-            cameraRotation.x += event.deltaY / PI / 100
-            cameraRotation.y += event.deltaX / PI / 100
-        }
-    }
-}
-fun clickHandler(event: Event) {
-    if (event is MouseEvent) {
-        event.preventDefault()
-        val click = Vector2()
-        val size = Vector2()
-        renderer.getSize(size)
-        click.x = 2 * event.clientX / size.x - 1
-        click.y = 1 - 2 * event.clientY / size.y
-        raycaster.setFromCamera(click, camera)
-        val intersects = raycaster.intersectObjects(scene.children, true)
-        intersects.map{it.`object`}
-            .firstOrNull{it.name.isNotBlank()}
-            ?.let {
-                focused = it as Mesh<SphereGeometry, *>
-                console.log("Focus now on ${focused.name}")
-                cameraRotation.set(0, 0)
-            }
-    }
-}
 
 val clock = Clock()
-val camera = PerspectiveCamera(75, window.aspectRatio, 1, 2e9).apply {
-    position.z = earthRadius*2
+val camera = PerspectiveCamera(60, window.aspectRatio, 1, 2e9).apply {
+    position.z = earthRadius*10
 }
 val raycaster = Raycaster().apply {
     far = 2e8
