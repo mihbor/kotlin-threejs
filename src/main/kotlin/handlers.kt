@@ -4,10 +4,7 @@ import org.w3c.dom.events.Event
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
 import org.w3c.dom.get
-import three.js.Mesh
-import three.js.SphereGeometry
-import three.js.Vector2
-import three.js.Vector3
+import three.js.*
 import kotlin.math.PI
 import kotlin.math.sqrt
 
@@ -64,13 +61,17 @@ fun wheelHandler(event: Event) {
     }
 }
 
+fun Object3D.hasNameInHierarchy(name: String): Boolean =
+   if (this.name == name) true
+   else this.parent != null && this.parent!!.hasNameInHierarchy(name)
+
 fun zoom(delta: Int) = zoom(delta.toDouble())
 
 fun zoom(delta: Double) {
     val direction = Vector3();
     val focusedPosition = Vector3().apply(focused::getWorldPosition)
     camera.getWorldDirection(direction);
-    val radius = focused.geometry.parameters.radius
+    val radius = if (focused.hasNameInHierarchy("ISS")) 10 else focused.geometry.parameters.radius
     val newPosition = camera.position.clone().add(
         direction.multiplyScalar((camera.position.clone().sub(focusedPosition).length() - radius) * delta / -100)
     )

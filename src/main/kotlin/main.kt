@@ -2,10 +2,8 @@
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Window
-import org.w3c.dom.events.Event
-import org.w3c.dom.events.MouseEvent
-import org.w3c.dom.events.WheelEvent
 import three.js.*
+import three.js.loaders.GLTFLoader
 import kotlin.math.PI
 
 val earthRadius = 6378.137
@@ -17,6 +15,8 @@ operator fun Number.plus(other: Number) = toDouble() + other.toDouble()
 operator fun Number.times(other: Number) = toDouble() * other.toDouble()
 operator fun Number.div(other: Number) = toDouble() / other.toDouble()
 operator fun Number.compareTo(other: Number) = toDouble().compareTo(other.toDouble())
+
+external fun require(module: String): dynamic
 
 external interface Options {
     var passive: Boolean
@@ -37,6 +37,14 @@ fun main() {
     document.addEventListener("click", ::clickHandler, false)
     document.addEventListener("touchstart", ::touchStartHandler, options)
     document.addEventListener("touchmove", ::touchMoveHandler, options)
+    val modelLoader = GLTFLoader()// = require("three/examples/jsm/loaders/GLTFLoader")
+    modelLoader.load("ISS.gltf", {
+        it.scene.name = "ISS"
+        it.scene.position.z = earthRadius*10 - 10
+        it.scene.scale.multiply(Vector3(0.01,0.01,0.01))
+        scene.add(it.scene)
+        console.log(it.scene)
+    }, {}, console::log)
 
     animate()
 }
@@ -70,6 +78,7 @@ val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antial
     setSize(window.innerWidth, window.innerHeight-4)
     setPixelRatio(window.devicePixelRatio)
 }
+
 val texLoader = TextureLoader()
 val earthTex = texLoader.load("1_earth_8k.jpg")
 val moonTex = texLoader.load("8k_moon.jpg")
