@@ -71,11 +71,11 @@ fun zoom(delta: Double) {
     val direction = Vector3();
     val focusedPosition = Vector3().apply(focused::getWorldPosition)
     camera.getWorldDirection(direction);
-    val radius = if (focused.hasNameInHierarchy("ISS")) 10 else focused.geometry.parameters.radius
+    val radius = if (focused.hasNameInHierarchy("ISS")) 1 else focused.geometry.parameters.radius
     val newPosition = camera.position.clone().add(
         direction.multiplyScalar((camera.position.clone().sub(focusedPosition).length() - radius) * delta / -100)
     )
-    if (newPosition.clone().sub(focusedPosition).length() > radius + 100.0 && newPosition.length() < 1e8) {
+    if (newPosition.clone().sub(focusedPosition).length() > radius * 1.05 && newPosition.length() < 1e8) {
         camera.position.copy(newPosition)
     }
 }

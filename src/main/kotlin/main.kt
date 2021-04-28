@@ -38,7 +38,7 @@ fun main() {
     document.addEventListener("touchstart", ::touchStartHandler, options)
     document.addEventListener("touchmove", ::touchMoveHandler, options)
     val modelLoader = GLTFLoader()// = require("three/examples/jsm/loaders/GLTFLoader")
-    modelLoader.load("ISS.gltf", {
+    modelLoader.load("iss/scene.gltf", {
         it.scene.name = "ISS"
         it.scene.position.z = earthRadius*10 - 10
         it.scene.scale.multiply(Vector3(0.01,0.01,0.01))
@@ -66,7 +66,7 @@ fun animate() {
 }
 
 val clock = Clock()
-val camera = PerspectiveCamera(60, window.aspectRatio, 1, 2e9).apply {
+val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9).apply {
     position.z = earthRadius*10
 }
 val raycaster = Raycaster().apply {
@@ -87,11 +87,13 @@ val earth = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMaterial().a
     name = "Earth"
     rotation.y = PI
     scale.y = 6356.752/ earthRadius
-    repeat(10) {
-        val atmosphere = Mesh(SphereGeometry(earthRadius + 20 + 10*it, 100, 100), MeshStandardMaterial().apply {
+    val n = 10
+    repeat(n) {
+        val atmosphere = Mesh(SphereGeometry(earthRadius + 20 + (100/n)*it, 100, 100), MeshStandardMaterial().apply {
             color = Color(0xffffff)
             transparent = true
-            opacity = 0.05
+            opacity = 0.5/n
+            scale.y = 6356.752/ earthRadius
         })
         add(atmosphere)
     }
