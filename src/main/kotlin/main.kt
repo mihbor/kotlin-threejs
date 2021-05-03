@@ -37,6 +37,7 @@ fun main() {
     document.addEventListener("click", ::clickHandler, false)
     document.addEventListener("touchstart", ::touchStartHandler, options)
     document.addEventListener("touchmove", ::touchMoveHandler, options)
+
     val modelLoader = GLTFLoader()// = require("three/examples/jsm/loaders/GLTFLoader")
     modelLoader.load("iss/scene.gltf", {
         it.scene.name = "ISS"

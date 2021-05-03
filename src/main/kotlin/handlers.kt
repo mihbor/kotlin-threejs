@@ -37,16 +37,15 @@ fun touchMoveHandler(event: Event) {
             val distance = distance(event.touches[1]!!, event.touches[0]!!)
             zoom(touchDistance!! - distance)
             touchDistance = distance
-        } else {
-            val touchX = event.touches[0]!!.pageX
-            val touchY = event.touches[0]!!.pageY
-            val deltaX = touchX - touchStartX!!
-            val deltaY = touchY - touchStartY!!
-            cameraRotation.x += deltaY / PI / 200
-            cameraRotation.y += deltaX / PI / 200
-            touchStartX = touchX
-            touchStartY = touchY
         }
+        val touchX = event.touches[0]!!.pageX
+        val touchY = event.touches[0]!!.pageY
+        val deltaX = touchX - touchStartX!!
+        val deltaY = touchY - touchStartY!!
+        cameraRotation.x += deltaY / PI / 200
+        cameraRotation.y += deltaX / PI / 200
+        touchStartX = touchX
+        touchStartY = touchY
     }
 }
 fun wheelHandler(event: Event) {
