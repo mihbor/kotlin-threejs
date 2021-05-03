@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     api(project(":threejs_kt"))
+    api(project(":three-mesh-ui_kt"))
     testImplementation(kotlin("test-js"))
 }
 

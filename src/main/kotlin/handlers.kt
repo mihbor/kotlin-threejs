@@ -76,11 +76,7 @@ fun zoom(delta: Double) {
     )
     if (newPosition.clone().sub(focusedPosition).length() > radius * 1.05 && newPosition.length() < 1e8) {
         camera.position.copy(newPosition)
-        val camRotX = camera.rotation.x
-        val camRotY = camera.rotation.y
-        camera.lookAt(focusedPosition())
-        cameraRotation.x = camRotX - camera.rotation.x
-        cameraRotation.y = camRotY - camera.rotation.y
+        unfixAngleToFocused()
     }
 }
 

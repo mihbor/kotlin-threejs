@@ -22,6 +22,21 @@ external interface Options {
     var passive: Boolean
 }
 val cameraRotation = Vector2(0, 0)
+
+val clock = Clock()
+val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9).apply {
+    position.z = earthRadius*10
+}
+val raycaster = Raycaster().apply {
+    far = 2e8
+}
+
+val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antialias = false }).apply {
+    document.body?.appendChild(domElement)
+    setSize(window.innerWidth, window.innerHeight-4)
+    setPixelRatio(window.devicePixelRatio)
+}
+
 fun main() {
 
     window.onresize = {
@@ -41,7 +56,7 @@ fun main() {
     val modelLoader = GLTFLoader()// = require("three/examples/jsm/loaders/GLTFLoader")
     modelLoader.load("iss/scene.gltf", {
         it.scene.name = "ISS"
-        it.scene.position.z = earthRadius*10 - 10
+        it.scene.position.z = camera.position.z - 10
         it.scene.scale.multiply(Vector3(0.01,0.01,0.01))
         scene.add(it.scene)
         console.log(it.scene)
@@ -52,6 +67,20 @@ fun main() {
 
 fun focusedPosition() = Vector3().apply(focused::getWorldPosition)
 
+fun fixAngleToFocused() {
+    camera.lookAt(focusedPosition())
+    camera.rotation.x += cameraRotation.x
+    camera.rotation.y += cameraRotation.y
+}
+
+fun unfixAngleToFocused() {
+    val camRotX = camera.rotation.x
+    val camRotY = camera.rotation.y
+    camera.lookAt(focusedPosition())
+    cameraRotation.x = camRotX - camera.rotation.x
+    cameraRotation.y = camRotY - camera.rotation.y
+}
+
 fun animate() {
     val delta = clock.getDelta().toDouble()
 
@@ -59,27 +88,17 @@ fun animate() {
     moon.rotation.y += delta / PI / 140
     moonOrbit.rotation.y += delta / PI / 140
 
-    camera.lookAt(focusedPosition())
-    camera.rotation.x += cameraRotation.x
-    camera.rotation.y += cameraRotation.y
+    fixAngleToFocused()
+
+    ui.position.x = camera.position.x + 1
+    ui.position.y = camera.position.y + 1
+    ui.position.z = camera.position.z - 3
+
+    ThreeMeshUI.update()
 
     renderer.render(scene, camera)
 
     window.requestAnimationFrame { animate() }
-}
-
-val clock = Clock()
-val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9).apply {
-    position.z = earthRadius*10
-}
-val raycaster = Raycaster().apply {
-    far = 2e8
-}
-
-val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antialias = false }).apply {
-    document.body?.appendChild(domElement)
-    setSize(window.innerWidth, window.innerHeight-4)
-    setPixelRatio(window.devicePixelRatio)
 }
 
 val texLoader = TextureLoader()
@@ -117,11 +136,22 @@ val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
     map = starsTex
     side = BackSide
 })
-
+val ui = Block((js("{}") as BlockProps).apply {
+    width = 1.0
+    height = 1.0
+    padding = 0.2
+    fontFamily = "fonts/Roboto-msdf.json"
+    fontTexture = "fonts/Roboto-msdf.png"
+}).apply {
+    add(Text((js("{}") as TextProps).apply {
+        content = "Some text to be displayed"
+    }))
+}
 val scene = Scene().apply {
     add(stars)
     add(earth)
     add(moonOrbit)
+    add(ui)
 
     add(DirectionalLight(0xffffff, 1).apply { position.set(5, 0.5, 5) })
 }
