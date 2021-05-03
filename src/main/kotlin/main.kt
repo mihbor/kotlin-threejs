@@ -49,15 +49,17 @@ fun main() {
 
     animate()
 }
+
+fun focusedPosition() = Vector3().apply(focused::getWorldPosition)
+
 fun animate() {
     val delta = clock.getDelta().toDouble()
-    val focusedPosition = Vector3().apply(focused::getWorldPosition)
 
     earth.rotation.y += delta / PI / 5
     moon.rotation.y += delta / PI / 140
     moonOrbit.rotation.y += delta / PI / 140
 
-    camera.lookAt(focusedPosition)
+    camera.lookAt(focusedPosition())
     camera.rotation.x += cameraRotation.x
     camera.rotation.y += cameraRotation.y
 
