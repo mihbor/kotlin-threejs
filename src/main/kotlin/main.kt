@@ -4,6 +4,7 @@ import kotlinx.browser.window
 import org.w3c.dom.Window
 import three.js.*
 import three.js.loaders.GLTFLoader
+import three.webxr.VRButton
 import kotlin.math.PI
 
 val earthRadius = 6378.137
@@ -32,6 +33,7 @@ val raycaster = Raycaster().apply {
 }
 
 val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antialias = false }).apply {
+    document.body?.appendChild( VRButton.createButton(this) )
     document.body?.appendChild(domElement)
     setSize(window.innerWidth, window.innerHeight-4)
     setPixelRatio(window.devicePixelRatio)

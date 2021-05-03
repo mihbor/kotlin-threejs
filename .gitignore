@@ -1,4 +1,4 @@
 /.idea/
-/build/
+*/build/
 /.gradle/
 /threejs_kt/build/
