@@ -1,19 +1,24 @@
+import kotlinx.browser.window
 import org.w3c.dom.Touch
 import org.w3c.dom.TouchEvent
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
 import org.w3c.dom.get
+import org.w3c.dom.pointerevents.PointerEvent
 import three.js.*
+import three.mesh.ui.Block
 import kotlin.math.PI
 import kotlin.math.sqrt
+
+fun square(base: Int) = base * base
+fun sqrt(number: Int) = sqrt(number.toDouble()).toInt()
 
 var touchStartX: Int? = null
 var touchStartY: Int? = null
 var touchDistance: Int? = null
 
-fun square(base: Int) = base * base
-fun sqrt(number: Int) = sqrt(number.toDouble()).toInt()
+var mouse = Vector2()
 
 fun touchStartHandler(event: Event) {
     if (event is TouchEvent) {
@@ -47,6 +52,14 @@ fun touchMoveHandler(event: Event) {
         touchStartX = touchX
         touchStartY = touchY
     }
+}
+
+fun pointerMoveHandler(event: Event) {
+    if (event is PointerEvent) {
+        mouse.x = 2.0 * event.clientX / window.innerWidth - 1
+        mouse.y = 1 -2.0 * event.clientY / window.innerHeight
+    }
+//    console.log("pointermove ${JSON.stringify(mouse)}")
 }
 fun wheelHandler(event: Event) {
     if (event is WheelEvent) {
@@ -86,16 +99,16 @@ fun clickHandler(event: Event) {
         val click = Vector2()
         val size = Vector2()
         renderer.getSize(size)
-        click.x = 2 * event.clientX / size.x - 1
-        click.y = 1 - 2 * event.clientY / size.y
+        click.x = 2.0 * event.clientX / size.x - 1
+        click.y = 1 - 2.0 * event.clientY / size.y
         raycaster.setFromCamera(click, camera)
         val intersects = raycaster.intersectObjects(scene.children, true)
-        intersects.map{it.`object`}
-            .firstOrNull{it.name.isNotBlank()}
+        val objects = intersects.map{it.`object`}
+        objects.firstOrNull(focusables::contains)
             ?.let {
                 focused = it as Mesh<SphereGeometry, *>
                 console.log("Focus now on ${focused.name}")
                 cameraRotation.set(0, 0)
-            }
+            } ?: buttonClicked(objects)
     }
 }

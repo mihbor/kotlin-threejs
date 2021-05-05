@@ -12,6 +12,8 @@ repositories {
 dependencies {
     api(project(":threejs_kt"))
     api(project(":three-mesh-ui_kt"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:1.0.1")
+
     testImplementation(kotlin("test-js"))
 }
 

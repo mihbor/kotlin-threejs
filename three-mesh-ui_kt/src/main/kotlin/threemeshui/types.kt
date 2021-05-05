@@ -1,24 +1,18 @@
-@file:JsModule("three-mesh-ui")
-@file:JsNonModule
+package three.mesh.ui
 
-import three.js.Object3D
 
-@JsName("default")
-external object ThreeMeshUI {
-    fun update()
+fun BlockState(
+    state: String,
+    attributes: BlockProps,
+    onSet: (() -> Unit)? = null
+) = (js("{}") as BlockState).apply {
+    this.state = state
+    this.attributes = attributes
+    onSet?.let { this.onSet = it }
 }
 
-external interface BlockProps {
-    var width: Double
-    var height: Double
-    var padding: Double
-    var fontFamily: String
-    var fontTexture: String
-}
+fun BlockProps() = js("{}") as BlockProps
 
-external class Block(options: BlockProps) : Object3D
-
-external interface TextProps {
-    var content: String
+fun TextProps(content: String) = (js("{}") as TextProps).apply {
+    this.content = content
 }
-external class Text(options: TextProps) : Object3D
