@@ -97,10 +97,6 @@ fun animate() {
 
     fixAngleToFocused()
 
-    ui.position.x = camera.position.x + 1
-    ui.position.y = camera.position.y + 1
-    ui.position.z = camera.position.z - 3
-
     ThreeMeshUI.update()
 
     renderer.render(scene, camera)
@@ -188,13 +184,13 @@ val ui = Block(BlockProps().apply {
         state = "idle",
         attributes = BlockProps().apply {
             offset = 0.035
-            backgroundColor = Color( 0x666666 )
+            backgroundColor = Color(0x666666)
             backgroundOpacity = 0.3
-            fontColor = Color( 0xffffff )
+            fontColor = Color(0xffffff)
         }
     )
 
-    val buttonNext = Block( buttonOptions ).apply { name = "Moon" }
+    val buttonNext = Block(buttonOptions).apply { name = "Moon" }
 //    val buttonPrevious = Block( buttonOptions )
 
     buttonNext.add(
@@ -205,10 +201,10 @@ val ui = Block(BlockProps().apply {
 //        Text(TextProps("previous"))
 //    )
 
-    val selectedAttributes = BlockProps().apply{
+    val selectedAttributes = BlockProps().apply {
         offset = 0.02
-        backgroundColor =Color( 0x777777 )
-        fontColor = Color( 0x222222 )
+        backgroundColor = Color(0x777777)
+        fontColor = Color(0x222222)
     }
     buttonNext.setupState(BlockState(
         state = "selected",
@@ -219,16 +215,18 @@ val ui = Block(BlockProps().apply {
             cameraRotation.set(0, 0)
         }
     ))
-    buttonNext.setupState( hoveredStateAttributes )
-    buttonNext.setupState( idleStateAttributes )
+    buttonNext.setupState(hoveredStateAttributes)
+    buttonNext.setupState(idleStateAttributes)
     add(buttonNext)
     buttons.add(buttonNext)
+    camera.add(this)
+    position.set(1, 1, -3)
 }
 val scene = Scene().apply {
     add(stars)
     add(earth)
     add(moonOrbit)
-    add(ui)
+    add(camera)
 
     add(DirectionalLight(0xffffff, 1).apply { position.set(5, 0.5, 5) })
 }
