@@ -53,21 +53,13 @@ val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antial
 }
 
 fun main() {
-
     window.onresize = {
         camera.aspect = window.aspectRatio
         camera.updateProjectionMatrix()
 
         renderer.setSize(window.innerWidth, window.innerHeight-4)
     }
-    val options = (js("{}") as Options).apply{
-        passive = false
-    }
-    document.addEventListener("wheel", ::wheelHandler, options)
-    document.addEventListener("click", ::clickHandler, false)
-    document.addEventListener("touchstart", ::touchStartHandler, options)
-    document.addEventListener("touchmove", ::touchMoveHandler, options)
-    document.addEventListener("pointermove", ::pointerMoveHandler, options)
+    registerListeners()
 
     animate()
 }
@@ -106,6 +98,10 @@ fun animate() {
     window.requestAnimationFrame { animate() }
 }
 
+fun findAncestorInList(child: Object3D, list: List<Object3D>): Object3D? =
+    if (list.contains(child)) child
+    else child.parent?.let { findAncestorInList(it, list)}
+
 val texLoader = TextureLoader()
 val earthTex = texLoader.load("1_earth_8k.jpg")
 val moonTex = texLoader.load("8k_moon.jpg")
@@ -127,8 +123,9 @@ val earth = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMaterial().a
     focusables.add(this)
 }
 
-var focused: Mesh<SphereGeometry, *> = earth
-val moon = Mesh(SphereGeometry(1738.1, 100, 100), MeshStandardMaterial().apply { map = moonTex }).apply {
+var focused: Object3D = earth
+val moonRadius = 1738.1
+val moon = Mesh(SphereGeometry(moonRadius, 100, 100), MeshStandardMaterial().apply { map = moonTex }).apply {
     name = "Moon"
     position.x = -300e3
     rotation.y = -PI/4
@@ -139,94 +136,94 @@ val moonOrbit = Object3D().apply{
     add(moon)
     rotation.y = -PI/4
 }
-
+lateinit var iss: Object3D
 val modelLoader = GLTFLoader().apply {
     load("iss/scene.gltf", {
-        it.scene.name = "ISS"
-        it.scene.position.z = camera.position.z - 10
-        it.scene.scale.multiply(Vector3(0.01, 0.01, 0.01))
-        scene.add(it.scene)
-        console.log(it.scene)
-        focusables.add(it.scene)
+        iss = it.scene
+        iss.name = "ISS"
+        iss.position.z = camera.position.z - 5
+        iss.scale.multiply(Vector3(0.01, 0.01, 0.01))
+        scene.add(iss)
+        console.log(iss)
+        focusables.add(iss)
     }, {}, console::log)
 }
+val radii = mapOf("Earth" to earthRadius, "Moon" to moonRadius, "ISS" to 1.0)
 val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
     map = starsTex
     side = BackSide
 })
-val ui = Block(BlockProps().apply {
-    width = 1.0
-    height = 1.0
-    padding = 0.2
-    fontFamily = "fonts/Roboto-msdf.json"
-    fontTexture = "fonts/Roboto-msdf.png"
-}).apply {
-    add(Text(TextProps("Some text to be displayed")))
-    val buttonOptions = BlockProps().apply {
-        width = 0.4
-        height = 0.15
-        justifyContent = "center"
-        alignContent = "center"
-        offset = 0.05
-        margin = 0.02
-        borderRadius = 0.075
+
+val buttonOptions = BlockProps().apply {
+    width = 0.25
+    height = 0.1
+    justifyContent = "center"
+    alignContent = "center"
+    offset = 0.05
+    margin = 0.02
+    borderRadius = 0.04
+}
+val hoveredStateAttributes = BlockState(
+    state = "hovered",
+    attributes = BlockProps().apply {
+        offset = 0.035
+        backgroundColor = Color(0x999999)
+        backgroundOpacity = 1.0
+        fontColor = Color(0xffffff)
     }
-    val hoveredStateAttributes = BlockState(
-        state = "hovered",
-        attributes = BlockProps().apply {
-            offset = 0.035
-            backgroundColor = Color(0x999999)
-            backgroundOpacity = 1.0
-            fontColor = Color(0xffffff)
-        }
-    )
-    val idleStateAttributes = BlockState(
-        state = "idle",
-        attributes = BlockProps().apply {
-            offset = 0.035
-            backgroundColor = Color(0x666666)
-            backgroundOpacity = 0.3
-            fontColor = Color(0xffffff)
-        }
-    )
-
-    val buttonNext = Block(buttonOptions).apply { name = "Moon" }
-//    val buttonPrevious = Block( buttonOptions )
-
-    buttonNext.add(
-        Text(TextProps("Moon"))
-    )
-
-//    buttonPrevious.add(
-//        Text(TextProps("previous"))
-//    )
-
-    val selectedAttributes = BlockProps().apply {
-        offset = 0.02
-        backgroundColor = Color(0x777777)
-        fontColor = Color(0x222222)
+)
+val idleStateAttributes = BlockState(
+    state = "idle",
+    attributes = BlockProps().apply {
+        offset = 0.035
+        backgroundColor = Color(0x666666)
+        backgroundOpacity = 0.3
+        fontColor = Color(0xffffff)
     }
-    buttonNext.setupState(BlockState(
+)
+
+val selectedAttributes = BlockProps().apply {
+    offset = 0.02
+    backgroundColor = Color(0x777777)
+    fontColor = Color(0x222222)
+}
+fun makeButton(name: String, obj: () -> Object3D) = Block(buttonOptions).apply {
+    add(Text(TextProps(name)))
+    setupState(BlockState(
         state = "selected",
         attributes = selectedAttributes,
         onSet = {
-            focused = moon
+            focused = obj.invoke()
             console.log("Focus now on ${focused.name}")
             cameraRotation.set(0, 0)
         }
     ))
-    buttonNext.setupState(hoveredStateAttributes)
-    buttonNext.setupState(idleStateAttributes)
-    add(buttonNext)
-    buttons.add(buttonNext)
+    setupState(hoveredStateAttributes)
+    setupState(idleStateAttributes)
+    buttons.add(this)
+}
+val ui = Block(BlockProps().apply {
+    justifyContent = "center"
+    alignContent = "center"
+    contentDirection = "column"
+    padding = 0.02
+    borderRadius = 0.11
+    fontSize = 0.04
+    fontFamily = "fonts/Roboto-msdf.json"
+    fontTexture = "fonts/Roboto-msdf.png"
+}).apply {
+    add(Block(BlockProps().apply {
+        fontSize = 0.04
+        padding = 0.02
+        width = 0.4
+        height = 0.15
+    }).apply{
+        add(Text(TextProps("Click to focus:")))
+    })
     camera.add(this)
-    position.set(1, 1, -3)
+    position.set(1, 0.7, -2)
+    add(makeButton("Earth"){earth})
+    add(makeButton("Moon"){moon})
+    add(makeButton("ISS"){iss})
 }
-val scene = Scene().apply {
-    add(stars)
-    add(earth)
-    add(moonOrbit)
-    add(camera)
-
-    add(DirectionalLight(0xffffff, 1).apply { position.set(5, 0.5, 5) })
-}
+val scene = createScene()

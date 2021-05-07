@@ -16,12 +16,14 @@ external interface BlockProps {
     var padding: Double
     var offset: Double
     var margin: Double
+    var fontSize: Double
     var borderRadius: Double
     var backgroundOpacity: Double
     var justifyContent: String
     var alignContent: String
     var fontFamily: String
     var fontTexture: String
+    var contentDirection: String
     var backgroundColor: Color
     var fontColor: Color
 }

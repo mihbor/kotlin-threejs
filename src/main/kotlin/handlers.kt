@@ -1,3 +1,4 @@
+import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Touch
 import org.w3c.dom.TouchEvent
@@ -7,7 +8,6 @@ import org.w3c.dom.events.WheelEvent
 import org.w3c.dom.get
 import org.w3c.dom.pointerevents.PointerEvent
 import three.js.*
-import three.mesh.ui.Block
 import kotlin.math.PI
 import kotlin.math.sqrt
 
@@ -19,6 +19,18 @@ var touchStartY: Int? = null
 var touchDistance: Int? = null
 
 var mouse = Vector2()
+
+fun registerListeners() {
+    val options = (js("{}") as Options).apply{
+        passive = false
+    }
+
+    document.addEventListener("wheel", ::wheelHandler, options)
+    document.addEventListener("click", ::clickHandler, false)
+    document.addEventListener("touchstart", ::touchStartHandler, options)
+    document.addEventListener("touchmove", ::touchMoveHandler, options)
+    document.addEventListener("pointermove", ::pointerMoveHandler, options)
+}
 
 fun touchStartHandler(event: Event) {
     if (event is TouchEvent) {
@@ -77,13 +89,17 @@ fun Object3D.hasNameInHierarchy(name: String): Boolean =
    if (this.name == name) true
    else this.parent != null && this.parent!!.hasNameInHierarchy(name)
 
+fun Collection<Object3D>.hasObjectInHierarchy(obj: Object3D): Boolean =
+    if (contains(obj)) true
+    else obj.parent != null && this.hasObjectInHierarchy(obj.parent!!)
+
 fun zoom(delta: Int) = zoom(delta.toDouble())
 
 fun zoom(delta: Double) {
     val direction = Vector3();
     val focusedPosition = Vector3().apply(focused::getWorldPosition)
     camera.getWorldDirection(direction);
-    val radius = if (focused.hasNameInHierarchy("ISS")) 1 else focused.geometry.parameters.radius
+    val radius = radii[focused.name]!!
     val newPosition = camera.position.clone().add(
         direction.multiplyScalar((camera.position.clone().sub(focusedPosition).length() - radius) * delta / -100)
     )
@@ -104,9 +120,10 @@ fun clickHandler(event: Event) {
         raycaster.setFromCamera(click, camera)
         val intersects = raycaster.intersectObjects(scene.children, true)
         val objects = intersects.map{it.`object`}
-        objects.firstOrNull(focusables::contains)
+        objects.firstOrNull(focusables::hasObjectInHierarchy)
+            ?.let{ findAncestorInList(it, focusables) }
             ?.let {
-                focused = it as Mesh<SphereGeometry, *>
+                focused = it
                 console.log("Focus now on ${focused.name}")
                 cameraRotation.set(0, 0)
             } ?: buttonClicked(objects)

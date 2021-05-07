@@ -1,6 +1,7 @@
 import three.js.Object3D
 import three.mesh.ui.Block
 
+
 fun updateButtons() {
 //    console.log("pointermove ${JSON.stringify(mouse)}")
     if (mouse.x != null && mouse.y != null) {
@@ -13,10 +14,6 @@ fun updateButtons() {
         buttons.filter { it != intersected }.forEach { it.setState("idle") }
     }
 }
-
-fun findAncestorInList(child: Object3D, list: List<Object3D>): Object3D? =
-    if (list.contains(child)) child
-    else child.parent?.let { findAncestorInList(it, list)}
 
 fun buttonClicked(intersects: List<Object3D>) {
     console.log("Something clicked")
