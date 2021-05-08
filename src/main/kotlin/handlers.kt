@@ -124,7 +124,7 @@ fun clickHandler(event: Event) {
             ?.let{ findAncestorInList(it, focusables) }
             ?.let {
                 focused = it
-                console.log("Focus now on ${focused.name}")
+                console.log("Focus now on ${focused?.name}")
                 cameraRotation.set(0, 0)
             } ?: buttonClicked(objects)
     }
