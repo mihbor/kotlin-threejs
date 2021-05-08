@@ -90,9 +90,9 @@ fun updateButtons() {
     }
 }
 
-fun buttonClicked(intersects: List<Object3D>) {
+fun buttonClicked(intersects: List<Object3D>): Block? {
     console.log("Something clicked")
-    intersects.getOrNull(0)
+    return intersects.getOrNull(0)
         ?.let { findAncestorInList(it, buttons) as Block? }
         ?.apply { setState("selected") }
 }

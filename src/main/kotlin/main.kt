@@ -58,13 +58,20 @@ fun main() {
 
     animate()
 }
+val timeMultiplier = 1.0
+
+val Number.daysPerRev
+    get() = 2 * PI / 24 / 3600 / this.toDouble() * timeMultiplier
+val Number.minutesPerRev
+    get() = daysPerRev * 24 * 60
 
 fun animate() {
     val delta = clock.getDelta().toDouble()
 
-    earth.rotation.y += delta / PI / 5
-    moon.rotation.y += delta / PI / 140
-    moonOrbit.rotation.y += delta / PI / 140
+    earth.rotation.y += delta * 1.daysPerRev
+    moon.rotation.y += delta * 28.daysPerRev
+    moonOrbit.rotation.y += delta * 28.daysPerRev
+    issOrbit.rotation.y += delta * 92.68.minutesPerRev
 
     fixAngleToFocused()
 

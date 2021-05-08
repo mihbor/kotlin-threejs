@@ -103,7 +103,9 @@ fun zoom(delta: Double) {
     val newPosition = camera.position.clone().add(
         direction.multiplyScalar((camera.position.clone().sub(focusedPosition).length() - radius) * delta / -100)
     )
-    if (newPosition.clone().sub(focusedPosition).length() > radius * 1.05 && newPosition.length() < 1e8) {
+    if (newPosition.clone().sub(focusedPosition).length() > radius * 1.05
+        && newPosition.clone().sub(camera.position).length() < focusedPosition.clone().sub(camera.position).length()
+        && newPosition.length() < 1e8) {
         camera.position.copy(newPosition)
         unfixAngleToFocused()
     }
@@ -120,12 +122,14 @@ fun clickHandler(event: Event) {
         raycaster.setFromCamera(click, camera)
         val intersects = raycaster.intersectObjects(scene.children, true)
         val objects = intersects.map{it.`object`}
-        objects.firstOrNull(focusables::hasObjectInHierarchy)
-            ?.let{ findAncestorInList(it, focusables) }
-            ?.let {
-                focused = it
-                console.log("Focus now on ${focused?.name}")
-                cameraRotation.set(0, 0)
-            } ?: buttonClicked(objects)
+        buttonClicked(objects)
+            ?: objectClicked(objects)
     }
 }
+fun objectClicked(intersects: List<Object3D>) = intersects.firstOrNull(focusables::hasObjectInHierarchy)
+    ?.let{ findAncestorInList(it, focusables) }
+    ?.let {
+        focused = it
+        console.log("Focus now on ${focused.name}")
+        cameraRotation.set(0, 0)
+    }

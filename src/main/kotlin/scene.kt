@@ -14,6 +14,9 @@ val moonOrbit = Object3D().apply{
     rotation.y = -PI/4
 }
 
+val issOrbit = Object3D().apply{
+    rotation.x = 2 * PI * 51.64 / 360
+}
 val scene = createScene()
 fun createScene() = Scene().apply {
     val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
@@ -24,6 +27,7 @@ fun createScene() = Scene().apply {
     add(stars)
     add(earth)
     add(moonOrbit)
+    add(issOrbit)
     loadISS()
     add(camera)
 
@@ -32,6 +36,7 @@ fun createScene() = Scene().apply {
 fun createEarth() = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMaterial().apply{ map = earthTex }).apply {
     name = "Earth"
     rotation.y = PI
+    rotation.x = 2 * PI * 23.44 / 360 // axial tilt
     scale.y = 6356.752/ earthRadius
     val n = 10
     repeat(n) {
@@ -57,10 +62,12 @@ fun loadISS() {
     GLTFLoader().apply {
         load("iss/scene.gltf", {
             iss = it.scene
+            iss.rotation.y = PI/2
+            iss.rotation.z = PI/2
             iss.name = "ISS"
-            iss.position.z = camera.position.z - 5
+            iss.position.z = earthRadius + 420
             iss.scale.multiply(Vector3(0.01, 0.01, 0.01))
-            scene.add(iss)
+            issOrbit.add(iss)
             console.log(iss)
             focusables.add(iss)
         }, {}, console::log)
