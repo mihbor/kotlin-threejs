@@ -3,7 +3,7 @@ import three.js.loaders.GLTFLoader
 import kotlin.math.PI
 
 val texLoader = TextureLoader()
-val earthTex = texLoader.load("1_earth_8k.jpg")
+val earthTex = texLoader.load("1_earth_16k.jpg")
 val moonTex = texLoader.load("8k_moon.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
@@ -17,8 +17,22 @@ val moonOrbit = Object3D().apply{
     add(moon)
     rotation.y = -PI/4
 }
-
-val issOrbit = Object3D()
+val issOrbitRadius = earthRadius + 420
+val issOrbitLine = Line(
+    CircleGeometry(issOrbitRadius, 1000),
+    LineDashedMaterial().apply {
+        color = Color("white")
+        dashSize = 1
+        gapSize = 2
+    }
+).apply {
+    rotation.x = PI/2
+    computeLineDistances()
+    visible = false
+}
+val issOrbit = Object3D().apply {
+    add(issOrbitLine)
+}
 val issOrbitInclination = Object3D().apply {
     rotation.z = 2 * PI * 51.64 / 360
     add(issOrbit)
@@ -70,7 +84,7 @@ fun loadISS() {
             iss.rotation.y = PI/2
             iss.rotation.z = PI/2
             iss.name = "ISS"
-            iss.position.z = earthRadius + 420
+            iss.position.z = issOrbitRadius
             iss.scale.multiply(Vector3(0.01, 0.01, 0.01))
             issOrbit.add(iss)
             console.log(iss)

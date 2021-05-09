@@ -35,7 +35,7 @@ val json = Json {
 }
 val clock = Clock()
 val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9).apply {
-    position.z = earthRadius*10
+    position.z = earthRadius*3
 }
 
 val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antialias = false }).apply {

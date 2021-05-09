@@ -128,8 +128,4 @@ fun clickHandler(event: Event) {
 }
 fun objectClicked(intersects: List<Object3D>) = intersects.firstOrNull(focusables::hasObjectInHierarchy)
     ?.let{ findAncestorInList(it, focusables) }
-    ?.let {
-        focused = it
-        console.log("Focus now on ${focused.name}")
-        cameraRotation.set(0, 0)
-    }
+    ?.let(::focusOn)

@@ -66,11 +66,7 @@ fun createButton(name: String, obj: () -> Object3D) = Block(buttonOptions).apply
     setupState(BlockState(
         state = "selected",
         attributes = selectedAttributes,
-        onSet = {
-            focused = obj.invoke()
-            console.log("Focus now on ${focused.name}")
-            cameraRotation.set(0, 0)
-        }
+        onSet = { focusOn(obj.invoke()) }
     ))
     setupState(hoveredStateAttributes)
     setupState(idleStateAttributes)
