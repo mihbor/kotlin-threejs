@@ -8,14 +8,20 @@ val moonTex = texLoader.load("8k_moon.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
 val earth = createEarth().apply { focused = this }
+val earthAxialTilt = Object3D().apply {
+    add(earth)
+    rotation.x = 2 * PI * 23.44 / 360 // axial tilt
+}
 val moon = createMoon()
 val moonOrbit = Object3D().apply{
     add(moon)
     rotation.y = -PI/4
 }
 
-val issOrbit = Object3D().apply{
-    rotation.x = 2 * PI * 51.64 / 360
+val issOrbit = Object3D()
+val issOrbitInclination = Object3D().apply {
+    rotation.z = 2 * PI * 51.64 / 360
+    add(issOrbit)
 }
 val scene = createScene()
 fun createScene() = Scene().apply {
@@ -25,9 +31,9 @@ fun createScene() = Scene().apply {
     })
 
     add(stars)
-    add(earth)
+    add(earthAxialTilt)
     add(moonOrbit)
-    add(issOrbit)
+    add(issOrbitInclination)
     loadISS()
     add(camera)
 
@@ -36,7 +42,6 @@ fun createScene() = Scene().apply {
 fun createEarth() = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMaterial().apply{ map = earthTex }).apply {
     name = "Earth"
     rotation.y = PI
-    rotation.x = 2 * PI * 23.44 / 360 // axial tilt
     scale.y = 6356.752/ earthRadius
     val n = 10
     repeat(n) {
