@@ -7,19 +7,10 @@ val earthTex = texLoader.load("1_earth_16k.jpg")
 val moonTex = texLoader.load("8k_moon.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
-val earth = createEarth().apply { focused = this }
-val earthAxialTilt = Object3D().apply {
-    add(earth)
-    rotation.x = 2 * PI * 23.44 / 360 // axial tilt
-}
-val moon = createMoon()
-val moonOrbit = Object3D().apply{
-    add(moon)
-    rotation.y = -PI/4
-}
-val issOrbitRadius = earthRadius + 420
-val issOrbitLine = Line(
-    CircleGeometry(issOrbitRadius, 1000),
+fun makeOrbitLine(radius: Number) = Line(
+    CircleGeometry(radius, 1000).apply {
+        vertices = vertices.drop(1).toTypedArray()
+    },
     LineDashedMaterial().apply {
         color = Color("white")
         dashSize = 1
@@ -30,12 +21,27 @@ val issOrbitLine = Line(
     computeLineDistances()
     visible = false
 }
+val earth = createEarth().apply { focused = this }
+val earthAxialTilt = Object3D().apply {
+    add(earth)
+    rotation.x = 2 * PI * 23.44 / 360 // axial tilt
+}
+val moonOrbitRadius = 384399
+val moon = createMoon()
+val moonOrbitLine = makeOrbitLine(moonOrbitRadius)
+val moonOrbit = Object3D().apply{
+    add(moon)
+    add(moonOrbitLine)
+    rotation.y = -PI/4
+}
+fun inclinedOrbit(degrees: Double, orbit: Object3D) = Object3D().apply {
+    rotation.z = 2 * PI * degrees / 360
+    add(orbit)
+}
+val issOrbitRadius = earthRadius + 420
+val issOrbitLine = makeOrbitLine(issOrbitRadius)
 val issOrbit = Object3D().apply {
     add(issOrbitLine)
-}
-val issOrbitInclination = Object3D().apply {
-    rotation.z = 2 * PI * 51.64 / 360
-    add(issOrbit)
 }
 val scene = createScene()
 fun createScene() = Scene().apply {
@@ -46,8 +52,8 @@ fun createScene() = Scene().apply {
 
     add(stars)
     add(earthAxialTilt)
-    add(moonOrbit)
-    add(issOrbitInclination)
+    add(inclinedOrbit(5.145, moonOrbit))
+    add(inclinedOrbit(51.64, issOrbit))
     loadISS()
     add(camera)
 
@@ -71,7 +77,7 @@ fun createEarth() = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMate
 }
 fun createMoon() = Mesh(SphereGeometry(moonRadius, 100, 100), MeshStandardMaterial().apply { map = moonTex }).apply {
     name = "Moon"
-    position.x = -300e3
+    position.x = -moonOrbitRadius
     rotation.y = -PI /4
     scale.y = 1736/1738.1
     focusables.add(this)

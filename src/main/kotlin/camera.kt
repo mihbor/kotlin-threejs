@@ -27,6 +27,7 @@ fun unfixAngleToFocused() {
 fun focusOn(obj: Object3D) {
     focused = obj
     issOrbitLine.visible = focused == iss
+    moonOrbitLine.visible = focused == moon
     console.log("Focus now on ${focused.name}")
     cameraRotation.set(0, 0)
 }
