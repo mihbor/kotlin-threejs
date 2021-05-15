@@ -42,4 +42,6 @@ external class Block(options: BlockProps) : Object3D {
 external interface TextProps {
     var content: String
 }
-external class Text(options: TextProps) : Object3D
+external class Text(options: TextProps) : Object3D {
+    fun set(options: TextProps)
+}

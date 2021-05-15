@@ -95,17 +95,19 @@ fun Collection<Object3D>.hasObjectInHierarchy(obj: Object3D): Boolean =
 
 fun zoom(delta: Int) = zoom(delta.toDouble())
 
+fun cameraPosition() = Vector3().apply(camera::getWorldPosition)
+
 fun zoom(delta: Double) {
     val direction = Vector3();
     val focusedPosition = Vector3().apply(focused::getWorldPosition)
     camera.getWorldDirection(direction);
     val radius = radii[focused.name]!!
-    val newPosition = camera.position.clone().add(
-        direction.multiplyScalar((camera.position.clone().sub(focusedPosition).length() - radius) * delta / -100)
-    )
-    if (newPosition.clone().sub(focusedPosition).length() > radius * 1.05
-        && newPosition.clone().sub(camera.position).length() < focusedPosition.clone().sub(camera.position).length()
-        && newPosition.length() < 1e8) {
+    val diff = direction.multiplyScalar((cameraPosition().sub(focusedPosition).length() - radius) * delta / -100)
+    val newPosition = cameraPosition().add(diff)
+//    console.log("Proposed distance to focused ${newPosition.clone().sub(focusedPosition).length()}")
+    if (newPosition.clone().sub(focusedPosition).length() > radius * 1.05 // don't go into object
+        && cameraPosition().sub(newPosition).length() < cameraPosition().sub(focusedPosition).length() // don't jump over object
+        && newPosition.length() < 1e9) {
         camera.position.copy(newPosition)
         unfixAngleToFocused()
     }

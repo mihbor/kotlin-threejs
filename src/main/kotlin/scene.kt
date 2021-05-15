@@ -5,6 +5,7 @@ import kotlin.math.PI
 val texLoader = TextureLoader()
 val earthTex = texLoader.load("1_earth_16k.jpg")
 val moonTex = texLoader.load("8k_moon.jpg")
+val sunTex = texLoader.load("8k_sun.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
 fun makeOrbitLine(radius: Number) = Line(
@@ -21,12 +22,13 @@ fun makeOrbitLine(radius: Number) = Line(
     computeLineDistances()
     visible = false
 }
+val sun = createSun()
 val earth = createEarth().apply { focused = this }
+
 val earthAxialTilt = Object3D().apply {
     add(earth)
     rotation.x = 2 * PI * 23.44 / 360 // axial tilt
 }
-val moonOrbitRadius = 384399
 val moon = createMoon()
 val moonOrbitLine = makeOrbitLine(moonOrbitRadius)
 val moonOrbit = Object3D().apply{
@@ -51,15 +53,17 @@ fun createScene() = Scene().apply {
     })
 
     add(stars)
+    add(sun)
     add(earthAxialTilt)
     add(inclinedOrbit(5.145, moonOrbit))
     add(inclinedOrbit(51.64, issOrbit))
     loadISS()
     add(camera)
 
-    add(DirectionalLight(0xffffff, 1).apply { position.set(5, 0.5, 5) })
 }
-fun createEarth() = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMaterial().apply{ map = earthTex }).apply {
+fun createEarth() = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMaterial().apply{
+    map = earthTex
+}).apply {
     name = "Earth"
     rotation.y = PI
     scale.y = 6356.752/ earthRadius
@@ -75,11 +79,34 @@ fun createEarth() = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMate
     }
     focusables.add(this)
 }
-fun createMoon() = Mesh(SphereGeometry(moonRadius, 100, 100), MeshStandardMaterial().apply { map = moonTex }).apply {
+fun createMoon() = Mesh(SphereGeometry(moonRadius, 100, 100), MeshStandardMaterial().apply {
+    map = moonTex
+}).apply {
     name = "Moon"
     position.x = -moonOrbitRadius
     rotation.y = -PI /4
     scale.y = 1736/1738.1
+    focusables.add(this)
+}
+fun createSun() = Mesh(SphereGeometry(sunRadius, 100, 100), MeshStandardMaterial().apply {
+    emissiveMap = sunTex
+//    color = Color("yellow")
+    emissive = Color("yellow")
+    emissiveIntensity = 2
+}).apply {
+    name = "Sun"
+    position.x = earthOrbitRadius
+    add(PointLight(0xffffff, 1))
+    val n = 0
+    repeat(n) {
+        val atmosphere = Mesh(SphereGeometry(sunRadius + 20000 + (100000/n)*it, 100, 100), MeshStandardMaterial().apply {
+            color = Color("yellow")
+            transparent = true
+            opacity = 0.5/n
+            side = DoubleSide
+        })
+        add(atmosphere)
+    }
     focusables.add(this)
 }
 lateinit var iss: Object3D

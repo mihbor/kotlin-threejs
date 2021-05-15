@@ -1,31 +1,58 @@
 import three.js.Color
 import three.js.Object3D
+import three.js.Vector3
 import three.mesh.ui.*
 
 val buttons = mutableListOf<Block>()
-fun createUI() = Block(BlockProps().apply {
+val uiProps = BlockProps().apply {
     justifyContent = "center"
     alignContent = "center"
     contentDirection = "column"
     padding = 0.02
-    borderRadius = 0.11
+    borderRadius = 0.05
     fontSize = 0.04
     fontFamily = "fonts/Roboto-msdf.json"
     fontTexture = "fonts/Roboto-msdf.png"
-}).apply {
+}
+fun Double.format(digits: Int): String = this.asDynamic().toFixed(digits)
+
+val Number.km
+    get() = toDouble().let{ if (it < 1000) it.format(3) else it.format(0)}  + "km"
+
+val distanceText = Text(TextProps(distanceToFocused().km))
+
+fun distanceToFocused(): Number {
+    val focusedPosition = Vector3().apply(focused::getWorldPosition)
+    val cameraPosition = Vector3().apply(camera::getWorldPosition)
+    return cameraPosition.distanceTo(focusedPosition)
+}
+
+fun createCoordinateDisplay() = Block(uiProps).apply {
     add(Block(BlockProps().apply {
-        fontSize = 0.04
-        padding = 0.02
         width = 0.4
-        height = 0.15
+        height = 0.1
+        backgroundOpacity = 0.0
+    }).apply {
+        add(Text(TextProps("Distance:\n")))
+        add(distanceText)
+    })
+    camera.add(this)
+    position.set(1, -0.7, -2)
+}
+fun createControls() = Block(uiProps).apply {
+    add(Block(BlockProps().apply {
+        width = 0.4
+        height = 0.1
+        backgroundOpacity = 0.0
     }).apply{
         add(Text(TextProps("Click to focus:")))
     })
     camera.add(this)
     position.set(1, 0.7, -2)
-    add(createButton("Earth"){earth})
-    add(createButton("Moon"){moon})
-    add(createButton("ISS"){iss})
+    add(createFocusButton("Sun"){ sun })
+    add(createFocusButton("Earth"){ earth })
+    add(createFocusButton("Moon"){ moon })
+    add(createFocusButton("ISS"){ iss })
 }
 
 val buttonOptions = BlockProps().apply {
@@ -61,7 +88,7 @@ val selectedAttributes = BlockProps().apply {
     backgroundColor = Color(0x777777)
     fontColor = Color(0x222222)
 }
-fun createButton(name: String, obj: () -> Object3D) = Block(buttonOptions).apply {
+fun createFocusButton(name: String, obj: () -> Object3D) = Block(buttonOptions).apply {
     add(Text(TextProps(name)))
     setupState(BlockState(
         state = "selected",

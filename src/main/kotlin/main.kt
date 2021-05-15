@@ -4,11 +4,17 @@ import kotlinx.browser.window
 import kotlinx.serialization.json.Json
 import org.w3c.dom.Window
 import three.js.*
+import three.mesh.ui.TextProps
 import three.mesh.ui.ThreeMeshUI
 import three.webxr.VRButton
 import kotlin.math.PI
 
 val earthRadius = 6378.137
+val earthOrbitRadius = 149598023.0
+val moonRadius = 1738.1
+val moonOrbitRadius = 384399.0
+val sunRadius = 695700.0
+val radii = mapOf("Sun" to sunRadius, "Earth" to earthRadius, "Moon" to moonRadius, "ISS" to 1.0)
 
 val Window.aspectRatio get() = innerWidth.toDouble() / innerHeight
 
@@ -53,7 +59,8 @@ fun main() {
 
         renderer.setSize(window.innerWidth, window.innerHeight-4)
     }
-    createUI()
+    createControls()
+    createCoordinateDisplay()
     registerListeners()
 
     animate()
@@ -75,6 +82,8 @@ fun animate() {
 
     fixAngleToFocused()
 
+    distanceText.set(TextProps(distanceToFocused().km))
+
     ThreeMeshUI.update()
 
     renderer.render(scene, camera)
@@ -88,5 +97,3 @@ fun findAncestorInList(child: Object3D, list: List<Object3D>): Object3D? =
     if (list.contains(child)) child
     else child.parent?.let { findAncestorInList(it, list)}
 
-val moonRadius = 1738.1
-val radii = mapOf("Earth" to earthRadius, "Moon" to moonRadius, "ISS" to 1.0)
