@@ -28,6 +28,7 @@ fun focusOn(obj: Object3D) {
     focused = obj
     issOrbitLine.visible = focused == iss
     moonOrbitLine.visible = focused == moon
+    earthOrbitLine.visible = focused == earth
     console.log("Focus now on ${focused.name}")
     cameraRotation.set(0, 0)
 }

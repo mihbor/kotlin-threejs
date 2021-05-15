@@ -33,7 +33,7 @@ fun createCoordinateDisplay() = Block(uiProps).apply {
         height = 0.1
         backgroundOpacity = 0.0
     }).apply {
-        add(Text(TextProps("Distance:\n")))
+        add(Text(TextProps("Distance to centre:\n")))
         add(distanceText)
     })
     camera.add(this)

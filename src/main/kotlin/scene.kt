@@ -8,14 +8,14 @@ val moonTex = texLoader.load("8k_moon.jpg")
 val sunTex = texLoader.load("8k_sun.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
-fun makeOrbitLine(radius: Number) = Line(
-    CircleGeometry(radius, 1000).apply {
-        vertices = vertices.drop(1).toTypedArray()
+fun makeOrbitLine(radius: Number, segments: Int = 1000) = Line(
+    CircleGeometry(radius, segments).apply {
+        vertices = (vertices.drop(1) as MutableList).apply{ add(get(0)) }.toTypedArray()
     },
     LineDashedMaterial().apply {
         color = Color("white")
-        dashSize = 1
-        gapSize = 2
+        dashSize = radius/10000
+        gapSize = radius/5000
     }
 ).apply {
     rotation.x = PI/2
@@ -28,6 +28,15 @@ val earth = createEarth().apply { focused = this }
 val earthAxialTilt = Object3D().apply {
     add(earth)
     rotation.x = 2 * PI * 23.44 / 360 // axial tilt
+}
+val earthOrbitLine = makeOrbitLine(earthOrbitRadius)
+var earthOrbitPosition = Object3D().apply {
+    position.x = earthOrbitRadius
+    add(earthAxialTilt)
+}
+val earthOrbit = Object3D().apply {
+    add(earthOrbitPosition)
+    add(earthOrbitLine)
 }
 val moon = createMoon()
 val moonOrbitLine = makeOrbitLine(moonOrbitRadius)
@@ -45,21 +54,28 @@ val issOrbitLine = makeOrbitLine(issOrbitRadius)
 val issOrbit = Object3D().apply {
     add(issOrbitLine)
 }
+
+val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
+    map = starsTex
+    side = BackSide
+})
 val scene = createScene()
 fun createScene() = Scene().apply {
-    val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
-        map = starsTex
-        side = BackSide
-    })
-
     add(stars)
+    earthOrbitPosition.add(inclinedOrbit(5.145, moonOrbit))
+    earthOrbitPosition.add(inclinedOrbit(51.64, issOrbit))
+    sun.add(inclinedOrbit(7.155, earthOrbit))
     add(sun)
-    add(earthAxialTilt)
-    add(inclinedOrbit(5.145, moonOrbit))
-    add(inclinedOrbit(51.64, issOrbit))
     loadISS()
-    add(camera)
-
+    add(camera.apply {
+        earth.updateWorldMatrix(true, false)
+        console.log("Initial camera position: ${JSON.stringify(camera.position)}")
+        earth.getWorldPosition(camera.position)
+        console.log("Camera moved to Earth position: ${JSON.stringify(camera.position)}")
+        position.z += earthRadius*3
+        console.log("Camera offset 3x Earth radius position: ${JSON.stringify(camera.position)}")
+        camera.lookAt(Vector3().apply(earth::getWorldPosition))
+    })
 }
 fun createEarth() = Mesh(SphereGeometry(earthRadius, 100, 100), MeshStandardMaterial().apply{
     map = earthTex
@@ -95,7 +111,6 @@ fun createSun() = Mesh(SphereGeometry(sunRadius, 100, 100), MeshStandardMaterial
     emissiveIntensity = 2
 }).apply {
     name = "Sun"
-    position.x = earthOrbitRadius
     add(PointLight(0xffffff, 1))
     val n = 0
     repeat(n) {

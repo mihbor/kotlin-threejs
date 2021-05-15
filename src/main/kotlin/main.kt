@@ -40,16 +40,14 @@ val json = Json {
     encodeDefaults = false
 }
 val clock = Clock()
-val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9).apply {
-    position.z = earthRadius*3
-}
+val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9)
 
 val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antialias = false }).apply {
     document.body?.appendChild( VRButton.createButton(this) )
     document.body?.appendChild(domElement)
     setSize(window.innerWidth, window.innerHeight-4)
     setPixelRatio(window.devicePixelRatio)
-    xr.enabled = true
+    xr.enabled = false
 }
 
 fun main() {
@@ -65,7 +63,7 @@ fun main() {
 
     animate()
 }
-val timeMultiplier = 1.0
+val timeMultiplier = 60.0
 
 val Number.daysPerRev
     get() = 2 * PI / 24 / 3600 / this.toDouble() * timeMultiplier
@@ -76,13 +74,15 @@ fun animate() {
     val delta = clock.getDelta().toDouble()
 
     earth.rotation.y += delta * 1.daysPerRev
+    earthOrbit.rotation.y += delta * 365.daysPerRev
     moon.rotation.y += delta * 28.daysPerRev
     moonOrbit.rotation.y += delta * 28.daysPerRev
     issOrbit.rotation.y += delta * 92.68.minutesPerRev
 
     fixAngleToFocused()
 
-    distanceText.set(TextProps(distanceToFocused().km))
+    distanceText.set(TextProps(distanceToFocused().km
+        + "\nearth: ${JSON.stringify(Vector3().apply(earth::getWorldPosition))}\ncamera: ${JSON.stringify(Vector3().apply(camera::getWorldPosition))}"))
 
     ThreeMeshUI.update()
 

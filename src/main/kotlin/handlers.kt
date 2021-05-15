@@ -7,7 +7,9 @@ import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
 import org.w3c.dom.get
 import org.w3c.dom.pointerevents.PointerEvent
-import three.js.*
+import three.js.Object3D
+import three.js.Vector2
+import three.js.Vector3
 import kotlin.math.PI
 import kotlin.math.sqrt
 
@@ -124,8 +126,7 @@ fun clickHandler(event: Event) {
         raycaster.setFromCamera(click, camera)
         val intersects = raycaster.intersectObjects(scene.children, true)
         val objects = intersects.map{it.`object`}
-        buttonClicked(objects)
-            ?: objectClicked(objects)
+        buttonClicked(objects) ?: objectClicked(objects)
     }
 }
 fun objectClicked(intersects: List<Object3D>) = intersects.firstOrNull(focusables::hasObjectInHierarchy)
