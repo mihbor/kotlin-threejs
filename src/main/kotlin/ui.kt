@@ -39,6 +39,7 @@ fun createCoordinateDisplay() = Block(uiProps).apply {
     camera.add(this)
     position.set(1, -0.7, -2)
 }
+
 fun createControls() = Block(uiProps).apply {
     add(Block(BlockProps().apply {
         width = 0.4
@@ -53,6 +54,22 @@ fun createControls() = Block(uiProps).apply {
     add(createFocusButton("Earth"){ earth })
     add(createFocusButton("Moon"){ moon })
     add(createFocusButton("ISS"){ iss })
+}
+
+fun createTimeControls() = Block(uiProps.apply {
+    contentDirection = "row"
+}).apply {
+    add(Block(BlockProps().apply {
+        width = 0.4
+        height = 0.1
+        backgroundOpacity = 0.0
+    }))
+    camera.add(this)
+    position.set(-1, -0.7, -2)
+    add(createTimeButton("pause"){ 0.0 })
+    add(createTimeButton("1:1"){ 1.0 })
+    add(createTimeButton("faster"){ it * 2.0 })
+    add(createTimeButton("x60"){ 60.0 })
 }
 
 val buttonOptions = BlockProps().apply {
@@ -88,12 +105,25 @@ val selectedAttributes = BlockProps().apply {
     backgroundColor = Color(0x777777)
     fontColor = Color(0x222222)
 }
+
 fun createFocusButton(name: String, obj: () -> Object3D) = Block(buttonOptions).apply {
     add(Text(TextProps(name)))
     setupState(BlockState(
         state = "selected",
         attributes = selectedAttributes,
         onSet = { focusOn(obj.invoke()) }
+    ))
+    setupState(hoveredStateAttributes)
+    setupState(idleStateAttributes)
+    buttons.add(this)
+}
+
+fun createTimeButton(name: String, multiplierProvider: (Double) -> Double) = Block(buttonOptions).apply {
+    add(Text(TextProps(name)))
+    setupState(BlockState(
+        state = "selected",
+        attributes = selectedAttributes,
+        onSet = { timeMultiplier = multiplierProvider.invoke(timeMultiplier) }
     ))
     setupState(hoveredStateAttributes)
     setupState(idleStateAttributes)

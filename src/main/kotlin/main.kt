@@ -58,12 +58,13 @@ fun main() {
         renderer.setSize(window.innerWidth, window.innerHeight-4)
     }
     createControls()
+    createTimeControls()
     createCoordinateDisplay()
     registerListeners()
 
     animate()
 }
-val timeMultiplier = 60.0
+var timeMultiplier = 60.0
 
 val Number.daysPerRev
     get() = 2 * PI / 24 / 3600 / this.toDouble() * timeMultiplier
