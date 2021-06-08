@@ -30,17 +30,19 @@ val earthAxialTilt = Object3D().apply {
     rotation.x = 2 * PI * 23.44 / 360 // axial tilt
 }
 val earthOrbitLine = makeOrbitLine(earthOrbitRadius)
-var earthOrbitPosition = Object3D().apply {
+var earthOrbitalPosition = Object3D().apply {
     position.x = earthOrbitRadius
     add(earthAxialTilt)
 }
 val earthOrbit = Object3D().apply {
-    add(earthOrbitPosition)
+    position.x = earthOrbitRadius * earthOrbitEccentricity
+    add(earthOrbitalPosition)
     add(earthOrbitLine)
 }
 val moon = createMoon()
 val moonOrbitLine = makeOrbitLine(moonOrbitRadius)
 val moonOrbit = Object3D().apply{
+    position.x = moonOrbitRadius * moonOrbitEccentricity
     add(moon)
     add(moonOrbitLine)
     rotation.y = -PI/4
@@ -49,7 +51,6 @@ fun inclinedOrbit(degrees: Double, orbit: Object3D) = Object3D().apply {
     rotation.z = 2 * PI * degrees / 360
     add(orbit)
 }
-val issOrbitRadius = earthRadius + 420
 val issOrbitLine = makeOrbitLine(issOrbitRadius)
 val issOrbit = Object3D().apply {
     add(issOrbitLine)
@@ -62,8 +63,8 @@ val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
 val scene = createScene()
 fun createScene() = Scene().apply {
     add(stars)
-    earthOrbitPosition.add(inclinedOrbit(5.145, moonOrbit))
-    earthOrbitPosition.add(inclinedOrbit(51.64, issOrbit))
+    earthOrbitalPosition.add(inclinedOrbit(5.145, moonOrbit))
+    earthOrbitalPosition.add(inclinedOrbit(51.64, issOrbit))
     sun.add(inclinedOrbit(7.155, earthOrbit))
     add(sun)
     loadISS()
