@@ -24,18 +24,21 @@ fun makeOrbitLine(radius: Number, segments: Int = 1000) = Line(
 }
 val sun = createSun()
 val earth = createEarth().apply { focused = this }
-
-val earthAxialTilt = Object3D().apply {
+val earthOrbitParams = OrbitParams(earth, sun, earthOrbitRadius, earthOrbitEccentricity, earthOrbitInclination).apply {
+    earth.userData.set("orbit", this)
+}
+val earthAxialyTilted = Object3D().apply {
     add(earth)
     rotation.x = 2 * PI * 23.44 / 360 // axial tilt
 }
 val earthOrbitLine = makeOrbitLine(earthOrbitRadius)
 var earthOrbitalPosition = Object3D().apply {
-    position.x = earthOrbitRadius
-    add(earthAxialTilt)
+    position.x = earthOrbitParams.semiMajorAxis
+    add(earthAxialyTilted)
 }
 val earthOrbit = Object3D().apply {
-    position.x = earthOrbitRadius * earthOrbitEccentricity
+//    userData.set("orbit", earthOrbitParams)
+    position.x = earthOrbitParams.semiMajorAxis * earthOrbitParams.eccentricity
     add(earthOrbitalPosition)
     add(earthOrbitLine)
 }
@@ -65,7 +68,7 @@ fun createScene() = Scene().apply {
     add(stars)
     earthOrbitalPosition.add(inclinedOrbit(5.145, moonOrbit))
     earthOrbitalPosition.add(inclinedOrbit(51.64, issOrbit))
-    sun.add(inclinedOrbit(7.155, earthOrbit))
+    sun.add(inclinedOrbit(earthOrbitInclination, earthOrbit))
     add(sun)
     loadISS()
     add(camera.apply {
