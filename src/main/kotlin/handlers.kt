@@ -14,11 +14,10 @@ import kotlin.math.PI
 import kotlin.math.sqrt
 
 fun square(base: Int) = base * base
-fun sqrt(number: Int) = sqrt(number.toDouble()).toInt()
 
 var touchStartX: Int? = null
 var touchStartY: Int? = null
-var touchDistance: Int? = null
+var touchDistance: Double? = null
 
 var mouse = Vector2()
 
@@ -45,8 +44,8 @@ fun touchStartHandler(event: Event) {
 }
 
 fun distance(touch1: Touch, touch2: Touch) = sqrt(
-    square(touch1.pageX - touch2.pageX)
-    + square(touch1.pageY - touch2.pageY)
+    square(touch1.pageX - touch2.pageX).toDouble()
+    + square(touch1.pageY - touch2.pageY).toDouble()
 )
 
 fun touchMoveHandler(event: Event) {

@@ -61,6 +61,7 @@ var timeMultiplier = 60.0
 
 val Number.daysPerRev
     get() = 2 * PI / 24 / 3600 / this.toDouble() * timeMultiplier
+
 val Number.minutesPerRev
     get() = daysPerRev * 24 * 60
 
@@ -79,7 +80,7 @@ fun animate() {
 
     distanceText.set(TextProps(distanceToFocused().km
 //        + "\nearth: ${JSON.stringify(Vector3().apply(earth::getWorldPosition))}\ncamera: ${JSON.stringify(Vector3().apply(camera::getWorldPosition))}"
-        + (orbitOfFocused?.run { "\n${body.name} orbiting ${orbiting.name} at ${distance.km}" } ?: "")
+        + (orbitOfFocused?.run { "\n${body.name} orbiting ${orbited.name}\nr: ${r.km}\nv: ${v.km}/s" } ?: "")
     ))
 
     ThreeMeshUI.update()
