@@ -8,42 +8,44 @@ val moonTex = texLoader.load("8k_moon.jpg")
 val sunTex = texLoader.load("8k_sun.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
-fun makeOrbitLine(radius: Number, segments: Int = 1000) = Line(
-    CircleGeometry(radius, segments).apply {
-        vertices = (vertices.drop(1) as MutableList).apply{ add(get(0)) }.toTypedArray()
-    },
-    LineDashedMaterial().apply {
-        color = Color("white")
-        dashSize = radius/10000
-        gapSize = radius/5000
-    }
-).apply {
+fun makeOrbitLine(semiMajorAxis: Number, eccentricity: Number, segments: Int = 1000) = EllipseCurve<Vector3>(
+    xRadius = semiMajorAxis,
+    yRadius = semiMinorAxis(eccentricity, semiMajorAxis)
+).let{
+    Line(
+        BufferGeometry().setFromPoints(it.getPoints(segments)),
+        LineDashedMaterial().apply {
+            color = Color("white")
+            dashSize = semiMajorAxis/10000
+            gapSize = semiMajorAxis/5000
+        }
+    )
+}.apply {
     rotation.x = PI/2
     computeLineDistances()
     visible = false
 }
 val sun = createSun()
 val earth = createEarth().apply { focused = this }
-val earthOrbitParams = OrbitParams(earth, sun, sunMass, earthOrbitRadius, earthOrbitEccentricity, earthOrbitInclination).apply {
-    earth.userData.set("orbit", this)
-}
-val earthAxialyTilted = Object3D().apply {
+val earthAxiallyTilted = Object3D().apply {
     add(earth)
     rotation.x = 2 * PI * 23.44 / 360 // axial tilt
 }
-val earthOrbitLine = makeOrbitLine(earthOrbitRadius)
 var earthOrbitalPosition = Object3D().apply {
-    position.x = earthOrbitParams.semiMajorAxis
-    add(earthAxialyTilted)
+    position.x = earthOrbitRadius
+    add(earthAxiallyTilted)
 }
+val earthOrbitParams = OrbitParams("Earth", earthOrbitalPosition, sun, sunMass, earthOrbitRadius, earthOrbitEccentricity, earthOrbitInclination).apply {
+    earth.userData.set("orbit", this)
+}
+val earthOrbitLine = makeOrbitLine(earthOrbitParams.semiMajorAxis, earthOrbitParams.eccentricity)
 val earthOrbit = Object3D().apply {
-//    userData.set("orbit", earthOrbitParams)
     position.x = earthOrbitParams.semiMajorAxis * earthOrbitParams.eccentricity
     add(earthOrbitalPosition)
     add(earthOrbitLine)
 }
 val moon = createMoon()
-val moonOrbitLine = makeOrbitLine(moonOrbitRadius)
+val moonOrbitLine = makeOrbitLine(moonOrbitRadius, moonOrbitEccentricity)
 val moonOrbit = Object3D().apply{
     position.x = moonOrbitRadius * moonOrbitEccentricity
     add(moon)
@@ -51,10 +53,10 @@ val moonOrbit = Object3D().apply{
     rotation.y = -PI/4
 }
 fun inclinedOrbit(degrees: Double, orbit: Object3D) = Object3D().apply {
-    rotation.z = 2 * PI * degrees / 360
+    rotation.z = PI * degrees / 180.0
     add(orbit)
 }
-val issOrbitLine = makeOrbitLine(issOrbitRadius)
+val issOrbitLine = makeOrbitLine(issOrbitRadius, issOrbitEccentricity)
 val issOrbit = Object3D().apply {
     add(issOrbitLine)
 }
@@ -72,7 +74,7 @@ fun createScene() = Scene().apply {
     add(sun)
     loadISS()
     add(camera.apply {
-        earth.updateWorldMatrix(true, false)
+        earth.updateWorldMatrix(true, true)
         console.log("Initial camera position: ${JSON.stringify(camera.position)}")
         earth.getWorldPosition(camera.position)
         console.log("Camera moved to Earth position: ${JSON.stringify(camera.position)}")

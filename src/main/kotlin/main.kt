@@ -8,6 +8,8 @@ import three.mesh.ui.TextProps
 import three.mesh.ui.ThreeMeshUI
 import three.webxr.VRButton
 import kotlin.math.PI
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 val Window.aspectRatio get() = innerWidth.toDouble() / innerHeight
 
@@ -16,6 +18,8 @@ operator fun Number.plus(other: Number) = toDouble() + other.toDouble()
 operator fun Number.times(other: Number) = toDouble() * other.toDouble()
 operator fun Number.div(other: Number) = toDouble() / other.toDouble()
 operator fun Number.compareTo(other: Number) = toDouble().compareTo(other.toDouble())
+
+fun semiMinorAxis(e: Number, a: Number) = sqrt(1 - e.toDouble().pow(2)) * a
 
 external fun require(module: String): dynamic
 
@@ -35,7 +39,10 @@ val json = Json {
 val clock = Clock()
 val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9)
 
-val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{ antialias = false }).apply {
+val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{
+    antialias = false
+    logarithmicDepthBuffer = false
+}).apply {
     document.body?.appendChild( VRButton.createButton(this) )
     document.body?.appendChild(domElement)
     setSize(window.innerWidth, window.innerHeight-4)
@@ -57,19 +64,21 @@ fun main() {
 
     animate()
 }
-var timeMultiplier = 60.0
+var timeMultiplier = 1.0
 
 val Number.daysPerRev
-    get() = 2 * PI / 24 / 3600 / this.toDouble() * timeMultiplier
+    get() = 2 * PI / 24 / 3600 / this.toDouble()
 
 val Number.minutesPerRev
     get() = daysPerRev * 24 * 60
 
+
 fun animate() {
-    val delta = clock.getDelta().toDouble()
+    val delta = clock.getDelta().toDouble() * timeMultiplier
 
     earth.rotation.y += delta * 1.daysPerRev
-    earthOrbit.rotation.y += delta * 365.daysPerRev
+//    earthOrbitRotation.rotation.y += delta * 365.daysPerRev
+    earthOrbitParams.deltaPosition(delta)
     moon.rotation.y += delta * 28.daysPerRev
     moonOrbit.rotation.y += delta * 28.daysPerRev
     issOrbit.rotation.y += delta * 92.68.minutesPerRev
@@ -80,7 +89,10 @@ fun animate() {
 
     distanceText.set(TextProps(distanceToFocused().km
 //        + "\nearth: ${JSON.stringify(Vector3().apply(earth::getWorldPosition))}\ncamera: ${JSON.stringify(Vector3().apply(camera::getWorldPosition))}"
-        + (orbitOfFocused?.run { "\n${body.name} orbiting ${orbited.name}\nr: ${r.km}\nv: ${v.km}/s" } ?: "")
+        + (orbitOfFocused?.run {
+            val r = this.r.toDouble()
+            "\n${name} orbiting ${orbited.name}\nr: ${r.km}\nv: ${v(r).km}/s"
+        } ?: "")
     ))
 
     ThreeMeshUI.update()

@@ -9,6 +9,7 @@ val moonRadius = 1738.1
 val moonOrbitRadius = 384748.0 // = semimajor axis
 val moonOrbitEccentricity = 0.0549006
 val issOrbitRadius = earthRadius + 420
+val issOrbitEccentricity = 0.0003458
 val sunRadius = 695700.0
 val sunMass = 1.989e30
 val radii = mapOf("Sun" to sunRadius, "Earth" to earthRadius, "Moon" to moonRadius, "ISS" to 1.0)

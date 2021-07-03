@@ -30,7 +30,7 @@ fun distanceToFocused(): Number {
 fun createCoordinateDisplay() = Block(uiProps).apply {
     add(Block(BlockProps().apply {
         width = 0.4
-        height = 0.1
+        height = 0.3
         backgroundOpacity = 0.0
     }).apply {
         add(Text(TextProps("Distance to centre:\n")))
@@ -59,17 +59,13 @@ fun createControls() = Block(uiProps).apply {
 fun createTimeControls() = Block(uiProps.apply {
     contentDirection = "row"
 }).apply {
-    add(Block(BlockProps().apply {
-        width = 0.4
-        height = 0.1
-        backgroundOpacity = 0.0
-    }))
     camera.add(this)
     position.set(-1, -0.7, -2)
     add(createTimeButton("pause"){ 0.0 })
+    add(createTimeButton("slower"){ if (it == 0.0) 1.0 else it * 0.5 })
     add(createTimeButton("1:1"){ 1.0 })
-    add(createTimeButton("faster"){ it * 2.0 })
-    add(createTimeButton("x60"){ 60.0 })
+    add(createTimeButton("faster"){ if (it == 0.0) 1.0 else it * 2.0 })
+//    add(createTimeButton("x60"){ 60.0 })
 }
 
 val buttonOptions = BlockProps().apply {
