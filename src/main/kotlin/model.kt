@@ -2,6 +2,7 @@ import three.js.Object3D
 import three.js.Vector3
 import kotlin.math.*
 
+fun r(a: Double, e: Double, θ: Double) = a * (1 - e.pow(2)) / (1 + e * cos(θ))
 fun cosϴ(a: Double, e: Double, r: Double) = a * (1.0 - e.pow(2)) / r / e - 1.0 / e
 fun cosE(e: Double, cosϴ: Double) = (e + cosϴ) / (1.0 + e * cosϴ)
 fun trueAnomaly(a: Double, e: Double, r: Double): Double {
@@ -21,11 +22,11 @@ class OrbitParams(
     val inclination: Double
 ) {
     val r: Number get() {
-        body.updateWorldMatrix(true, true)
+        orbited.updateWorldMatrix(true, true)
         val bodyPosition = Vector3().apply(body::getWorldPosition)
         val orbitingPosition = Vector3().apply(orbited::getWorldPosition)
         val distance = bodyPosition.distanceTo(orbitingPosition)
-        console.log("body ${JSON.stringify(bodyPosition)} focus ${JSON.stringify(orbitingPosition)} d $distance")
+        console.log("$name ${JSON.stringify(bodyPosition)} focus ${JSON.stringify(orbitingPosition)} d $distance")
         return distance
     }
 
@@ -33,7 +34,7 @@ class OrbitParams(
 
     fun v(r: Double) = sqrt(2 * μ / r / 1000.0 - μ / semiMajorAxis / 1000.0) / 1000.0
 
-    val cosE get() = cosE(eccentricity, cosϴ(semiMajorAxis, eccentricity, r.toDouble()))
+//    val cosE get() = cosE(eccentricity, cosϴ(semiMajorAxis, eccentricity, r.toDouble()))
 
     fun trueAnomaly(r: Double) = trueAnomaly(semiMajorAxis, eccentricity, r).let {
         if (body.position.y > 0.0) it
@@ -50,13 +51,16 @@ class OrbitParams(
         return Vector3(v * sin(trueAnomaly + flightPathAngle), 0.0, v * cos(trueAnomaly + flightPathAngle))
     }
 
-    fun deltaPosition(deltaTime: Double) {
-        val r = r.toDouble()
-        val vVector = vVector(r)
-        val displacement = vVector.clone().multiplyScalar(deltaTime)
-        console.log("dt $deltaTime ${JSON.stringify(vVector)} ${JSON.stringify(displacement)}")
-        body.position.add(displacement)
+    fun deltaPosition(tau: Double, elapsedTime: Double) {
+        val E = keplerSolve(eccentricity, M(meanMotion(G * massOrbited, semiMajorAxis * 1000), tau, elapsedTime))
+        val cosE = cos(E)
+        val cosTheta = cosTheta(eccentricity, cosE)
+        val r = r(semiMajorAxis, eccentricity, acos(cosTheta))
+        val x = cosTheta * r
+        val y = -sinTheta(eccentricity, cosE, sin(E)) * r
+        console.log("t $elapsedTime r $r x $x y $y")
+        body.position.set(x, 0.0, y)
         body.updateMatrix()
-        console.log("body ${JSON.stringify(body.position)}")
+        console.log("position ${JSON.stringify(body.position)}")
     }
 }

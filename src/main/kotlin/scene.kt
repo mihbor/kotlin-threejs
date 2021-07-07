@@ -8,7 +8,7 @@ val moonTex = texLoader.load("8k_moon.jpg")
 val sunTex = texLoader.load("8k_sun.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
-fun makeOrbitLine(semiMajorAxis: Number, eccentricity: Number, segments: Int = 1000) = EllipseCurve<Vector3>(
+fun makeOrbitLine(semiMajorAxis: Double, eccentricity: Double, segments: Int = 1000) = EllipseCurve<Vector3>(
     xRadius = semiMajorAxis,
     yRadius = semiMinorAxis(eccentricity, semiMajorAxis)
 ).let{
@@ -21,6 +21,7 @@ fun makeOrbitLine(semiMajorAxis: Number, eccentricity: Number, segments: Int = 1
         }
     )
 }.apply {
+    position.x = -semiMajorAxis * eccentricity
     rotation.x = PI/2
     computeLineDistances()
     visible = false
@@ -32,7 +33,7 @@ val earthAxiallyTilted = Object3D().apply {
     rotation.x = 2 * PI * 23.44 / 360 // axial tilt
 }
 var earthOrbitalPosition = Object3D().apply {
-    position.x = earthOrbitRadius
+    position.x = earthOrbitRadius * (1 - earthOrbitEccentricity)
     add(earthAxiallyTilted)
 }
 val earthOrbitParams = OrbitParams("Earth", earthOrbitalPosition, sun, sunMass, earthOrbitRadius, earthOrbitEccentricity, earthOrbitInclination).apply {
@@ -40,14 +41,15 @@ val earthOrbitParams = OrbitParams("Earth", earthOrbitalPosition, sun, sunMass, 
 }
 val earthOrbitLine = makeOrbitLine(earthOrbitParams.semiMajorAxis, earthOrbitParams.eccentricity)
 val earthOrbit = Object3D().apply {
-    position.x = earthOrbitParams.semiMajorAxis * earthOrbitParams.eccentricity
     add(earthOrbitalPosition)
     add(earthOrbitLine)
 }
 val moon = createMoon()
+//val moonOrbitParams = OrbitParams("Moon", moon, earth, earthMass, moonOrbitRadius, moonOrbitEccentricity, moonOrbitInclination).apply {
+//    moon.userData.set("orbit", this)
+//}
 val moonOrbitLine = makeOrbitLine(moonOrbitRadius, moonOrbitEccentricity)
-val moonOrbit = Object3D().apply{
-    position.x = moonOrbitRadius * moonOrbitEccentricity
+val moonOrbit = Object3D().apply {
     add(moon)
     add(moonOrbitLine)
     rotation.y = -PI/4

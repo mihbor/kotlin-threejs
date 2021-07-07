@@ -50,6 +50,9 @@ val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{
     xr.enabled = false
 }
 
+var t0 = clock.elapsedTime.toDouble()
+var elapsedTime = 0.0
+
 fun main() {
     window.onresize = {
         camera.aspect = window.aspectRatio
@@ -72,13 +75,12 @@ val Number.daysPerRev
 val Number.minutesPerRev
     get() = daysPerRev * 24 * 60
 
-
 fun animate() {
     val delta = clock.getDelta().toDouble() * timeMultiplier
+    elapsedTime += delta
 
     earth.rotation.y += delta * 1.daysPerRev
-//    earthOrbitRotation.rotation.y += delta * 365.daysPerRev
-    earthOrbitParams.deltaPosition(delta)
+    earthOrbitParams.deltaPosition(t0, elapsedTime)
     moon.rotation.y += delta * 28.daysPerRev
     moonOrbit.rotation.y += delta * 28.daysPerRev
     issOrbit.rotation.y += delta * 92.68.minutesPerRev
