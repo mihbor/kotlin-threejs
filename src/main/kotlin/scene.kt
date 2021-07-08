@@ -30,7 +30,7 @@ val sun = createSun()
 val earth = createEarth().apply { focused = this }
 val earthAxiallyTilted = Object3D().apply {
     add(earth)
-    rotation.x = 2 * PI * 23.44 / 360 // axial tilt
+    rotation.x = earthTilt.degrees // axial tilt
 }
 var earthOrbitalPosition = Object3D().apply {
     position.x = earthOrbitRadius * (1 - earthOrbitEccentricity)
@@ -45,17 +45,24 @@ val earthOrbit = Object3D().apply {
     add(earthOrbitLine)
 }
 val moon = createMoon()
-//val moonOrbitParams = OrbitParams("Moon", moon, earth, earthMass, moonOrbitRadius, moonOrbitEccentricity, moonOrbitInclination).apply {
-//    moon.userData.set("orbit", this)
-//}
-val moonOrbitLine = makeOrbitLine(moonOrbitRadius, moonOrbitEccentricity)
-val moonOrbit = Object3D().apply {
+val moonAxiallyTilted = Object3D().apply {
     add(moon)
-    add(moonOrbitLine)
-    rotation.y = -PI/4
+    rotation.x = moonTilt.degrees
 }
-fun inclinedOrbit(degrees: Double, orbit: Object3D) = Object3D().apply {
-    rotation.z = PI * degrees / 180.0
+val moonOrbitalPosition = Object3D().apply {
+    position.x = moonOrbitRadius * (1 - moonOrbitEccentricity)
+    add(moonAxiallyTilted)
+}
+val moonOrbitParams = OrbitParams("Moon", moonOrbitalPosition, earth, earthMass, moonOrbitRadius, moonOrbitEccentricity, moonOrbitInclination).apply {
+    moon.userData.set("orbit", this)
+}
+val moonOrbitLine = makeOrbitLine(moonOrbitParams.semiMajorAxis, moonOrbitParams.eccentricity)
+val moonOrbit = Object3D().apply {
+    add(moonOrbitalPosition)
+    add(moonOrbitLine)
+}
+fun inclinedOrbit(inclination: Double, orbit: Object3D) = Object3D().apply {
+    rotation.z = inclination.degrees
     add(orbit)
 }
 val issOrbitLine = makeOrbitLine(issOrbitRadius, issOrbitEccentricity)
@@ -70,7 +77,7 @@ val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
 val scene = createScene()
 fun createScene() = Scene().apply {
     add(stars)
-    earthOrbitalPosition.add(inclinedOrbit(5.145, moonOrbit))
+    earthOrbitalPosition.add(inclinedOrbit(moonOrbitInclination, moonOrbit))
     earthOrbitalPosition.add(inclinedOrbit(51.64, issOrbit))
     sun.add(inclinedOrbit(earthOrbitParams.inclination, earthOrbit))
     add(sun)
@@ -107,7 +114,6 @@ fun createMoon() = Mesh(SphereGeometry(moonRadius, 100, 100), MeshStandardMateri
     map = moonTex
 }).apply {
     name = "Moon"
-    position.x = -moonOrbitRadius
     rotation.y = -PI /4
     scale.y = 1736/1738.1
     focusables.add(this)

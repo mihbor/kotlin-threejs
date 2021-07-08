@@ -82,7 +82,7 @@ fun animate() {
     earth.rotation.y += delta * 1.daysPerRev
     earthOrbitParams.deltaPosition(t0, elapsedTime)
     moon.rotation.y += delta * 28.daysPerRev
-    moonOrbit.rotation.y += delta * 28.daysPerRev
+    moonOrbitParams.deltaPosition(t0, elapsedTime)
     issOrbit.rotation.y += delta * 92.68.minutesPerRev
 
     fixAngleToFocused()
