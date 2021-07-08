@@ -7,7 +7,7 @@ fun cosϴ(a: Double, e: Double, r: Double) = a * (1.0 - e.pow(2)) / r / e - 1.0 
 fun cosE(e: Double, cosϴ: Double) = (e + cosϴ) / (1.0 + e * cosϴ)
 fun trueAnomaly(a: Double, e: Double, r: Double): Double {
     val cosTheta = cosϴ(a, e, r)
-    console.log(" r $r cosϴ $cosTheta")
+//    console.log(" r $r cosϴ $cosTheta")
     return acos(cosTheta)
 }
 fun flightPathAngle(e: Double, θ: Double) = atan(e * sin(θ) / (1 + e * cos(θ)))
@@ -26,7 +26,7 @@ class OrbitParams(
         val bodyPosition = Vector3().apply(body::getWorldPosition)
         val orbitingPosition = Vector3().apply(orbited::getWorldPosition)
         val distance = bodyPosition.distanceTo(orbitingPosition)
-        console.log("$name ${JSON.stringify(bodyPosition)} focus ${JSON.stringify(orbitingPosition)} d $distance")
+//        console.log("$name ${JSON.stringify(bodyPosition)} focus ${JSON.stringify(orbitingPosition)} d $distance")
         return distance
     }
 
@@ -47,7 +47,7 @@ class OrbitParams(
         val v = v(r)
         val trueAnomaly = trueAnomaly(r)
         val flightPathAngle = flightPathAngle(trueAnomaly)
-        println("r $r v $v theta ${trueAnomaly * 180 / PI} gamma ${flightPathAngle * 180 / PI}")
+//        println("r $r v $v theta ${trueAnomaly * 180 / PI} gamma ${flightPathAngle * 180 / PI}")
         return Vector3(v * sin(trueAnomaly + flightPathAngle), 0.0, v * cos(trueAnomaly + flightPathAngle))
     }
 
@@ -58,9 +58,9 @@ class OrbitParams(
         val r = r(semiMajorAxis, eccentricity, acos(cosTheta))
         val x = cosTheta * r
         val y = -sinTheta(eccentricity, cosE, sin(E)) * r
-        console.log("t $elapsedTime r $r x $x y $y")
+//        console.log("tau $tau t $elapsedTime r $r x $x y $y")
         body.position.set(x, 0.0, y)
         body.updateMatrix()
-        console.log("position ${JSON.stringify(body.position)}")
+//        console.log("position ${JSON.stringify(body.position)}")
     }
 }

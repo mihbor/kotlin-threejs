@@ -65,8 +65,11 @@ fun inclinedOrbit(inclination: Double, orbit: Object3D) = Object3D().apply {
     rotation.z = inclination.degrees
     add(orbit)
 }
+val issOrbitalPosition = Object3D()
+val issOrbitParams = OrbitParams("ISS", issOrbitalPosition, earth, earthMass, issOrbitRadius, issOrbitEccentricity, issOrbitInclination)
 val issOrbitLine = makeOrbitLine(issOrbitRadius, issOrbitEccentricity)
 val issOrbit = Object3D().apply {
+    add(issOrbitalPosition)
     add(issOrbitLine)
 }
 
@@ -78,7 +81,7 @@ val scene = createScene()
 fun createScene() = Scene().apply {
     add(stars)
     earthOrbitalPosition.add(inclinedOrbit(moonOrbitInclination, moonOrbit))
-    earthOrbitalPosition.add(inclinedOrbit(51.64, issOrbit))
+    earthOrbitalPosition.add(inclinedOrbit(issOrbitInclination, issOrbit))
     sun.add(inclinedOrbit(earthOrbitParams.inclination, earthOrbit))
     add(sun)
     loadISS()
@@ -148,7 +151,8 @@ fun loadISS() {
             iss.name = "ISS"
             iss.position.z = issOrbitRadius
             iss.scale.multiply(Vector3(0.01, 0.01, 0.01))
-            issOrbit.add(iss)
+            issOrbitalPosition.add(iss)
+            iss.userData.set("orbit", issOrbitParams)
             console.log(iss)
             focusables.add(iss)
         }, {}, console::log)

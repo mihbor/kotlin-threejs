@@ -16,6 +16,7 @@ const val moonOrbitEccentricity = 0.0549006
 const val moonOrbitInclination = 5.145
 const val issOrbitRadius = earthRadius + 420
 const val issOrbitEccentricity = 0.0003458
+const val issOrbitInclination = 51.64
 const val sunRadius = 695700.0
 const val sunMass = 1.989e30
 val radii = mapOf("Sun" to sunRadius, "Earth" to earthRadius, "Moon" to moonRadius, "ISS" to 1.0)
