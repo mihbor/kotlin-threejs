@@ -37,7 +37,7 @@ fun keplerSolve(e: Double, M: Double, tolerance: Double = 1e-15): Double {
       throw IllegalStateException("Astounding! KeplerSolve failed to converge!")
     }
   } while (dE > tolerance)
-  console.log("KeplerSolve converged in $count iterations")
+//  console.log("KeplerSolve converged in $count iterations")
   return E
 }
 

@@ -1,5 +1,4 @@
-import three.js.Object3D
-import three.js.Vector3
+import three.js.*
 import kotlin.math.*
 
 fun r(a: Double, e: Double, θ: Double) = a * (1 - e.pow(2)) / (1 + e * cos(θ))
@@ -12,18 +11,58 @@ fun trueAnomaly(a: Double, e: Double, r: Double): Double {
 }
 fun flightPathAngle(e: Double, θ: Double) = atan(e * sin(θ) / (1 + e * cos(θ)))
 
-class OrbitParams(
+fun makeOrbitLine(semiMajorAxis: Double, eccentricity: Double, segments: Int = 1000) = EllipseCurve<Vector3>(
+    xRadius = semiMajorAxis,
+    yRadius = semiMinorAxis(eccentricity, semiMajorAxis)
+).let{
+    Line(
+        BufferGeometry().setFromPoints(it.getPoints(segments)),
+        LineDashedMaterial().apply {
+            color = Color("white")
+            dashSize = semiMajorAxis/10000
+            gapSize = semiMajorAxis/5000
+        }
+    )
+}.apply {
+    position.x = -semiMajorAxis * eccentricity
+    rotation.x = PI/2
+    computeLineDistances()
+    visible = false
+}
+
+fun Object3D.inclined(inclination: Double) = Object3D().also {
+    it.add(this)
+    rotation.z = inclination.degrees
+}
+
+class Orbit(
     val name: String,
     val body: Object3D,
+    position: Object3D,
     val orbited: Object3D,
     val massOrbited: Double,
     val semiMajorAxis: Double,
     val eccentricity: Double,
     val inclination: Double
 ) {
+    val position: Object3D
+    val orbitLine: Object3D
+    val orbit: Object3D
+    init {
+        this.position = position(position)
+        orbitLine = makeOrbitLine(semiMajorAxis, eccentricity)
+        orbit = Object3D().also {
+            it.add(this.position)
+            it.add(orbitLine)
+        }.inclined(inclination)
+    }
+    fun position(body: Object3D) = Object3D().apply {
+        position.x = semiMajorAxis * (1 - eccentricity)
+        add(body)
+    }
     val r: Number get() {
         orbited.updateWorldMatrix(true, true)
-        val bodyPosition = Vector3().apply(body::getWorldPosition)
+        val bodyPosition = Vector3().apply(position::getWorldPosition)
         val orbitingPosition = Vector3().apply(orbited::getWorldPosition)
         val distance = bodyPosition.distanceTo(orbitingPosition)
 //        console.log("$name ${JSON.stringify(bodyPosition)} focus ${JSON.stringify(orbitingPosition)} d $distance")
@@ -37,7 +76,7 @@ class OrbitParams(
 //    val cosE get() = cosE(eccentricity, cosϴ(semiMajorAxis, eccentricity, r.toDouble()))
 
     fun trueAnomaly(r: Double) = trueAnomaly(semiMajorAxis, eccentricity, r).let {
-        if (body.position.y > 0.0) it
+        if (position.position.y > 0.0) it
         else 2 * PI - it
     }
 
@@ -59,8 +98,8 @@ class OrbitParams(
         val x = cosTheta * r
         val y = -sinTheta(eccentricity, cosE, sin(E)) * r
 //        console.log("tau $tau t $elapsedTime r $r x $x y $y")
-        body.position.set(x, 0.0, y)
-        body.updateMatrix()
+        position.position.set(x, 0.0, y)
+        position.updateMatrix()
 //        console.log("position ${JSON.stringify(body.position)}")
     }
 }

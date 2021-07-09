@@ -7,6 +7,7 @@ import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
 import org.w3c.dom.get
 import org.w3c.dom.pointerevents.PointerEvent
+import three.js.Mesh
 import three.js.Object3D
 import three.js.Vector2
 import three.js.Vector3
@@ -128,6 +129,6 @@ fun clickHandler(event: Event) {
         buttonClicked(objects) ?: objectClicked(objects)
     }
 }
-fun objectClicked(intersects: List<Object3D>) = intersects.firstOrNull(focusables::hasObjectInHierarchy)
+fun objectClicked(intersects: List<Object3D>) = intersects.filterIsInstance<Mesh<*, *>>().firstOrNull(focusables::hasObjectInHierarchy)
     ?.let{ findAncestorInList(it, focusables) }
     ?.let(::focusOn)

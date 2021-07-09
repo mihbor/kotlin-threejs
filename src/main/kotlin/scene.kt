@@ -8,70 +8,24 @@ val moonTex = texLoader.load("8k_moon.jpg")
 val sunTex = texLoader.load("8k_sun.jpg")
 val starsTex = texLoader.load("tycho_skymap.jpg")
 
-fun makeOrbitLine(semiMajorAxis: Double, eccentricity: Double, segments: Int = 1000) = EllipseCurve<Vector3>(
-    xRadius = semiMajorAxis,
-    yRadius = semiMinorAxis(eccentricity, semiMajorAxis)
-).let{
-    Line(
-        BufferGeometry().setFromPoints(it.getPoints(segments)),
-        LineDashedMaterial().apply {
-            color = Color("white")
-            dashSize = semiMajorAxis/10000
-            gapSize = semiMajorAxis/5000
-        }
-    )
-}.apply {
-    position.x = -semiMajorAxis * eccentricity
-    rotation.x = PI/2
-    computeLineDistances()
-    visible = false
-}
 val sun = createSun()
 val earth = createEarth().apply { focused = this }
-val earthAxiallyTilted = Object3D().apply {
-    add(earth)
-    rotation.x = earthTilt.degrees // axial tilt
-}
-var earthOrbitalPosition = Object3D().apply {
-    position.x = earthOrbitRadius * (1 - earthOrbitEccentricity)
-    add(earthAxiallyTilted)
-}
-val earthOrbitParams = OrbitParams("Earth", earthOrbitalPosition, sun, sunMass, earthOrbitRadius, earthOrbitEccentricity, earthOrbitInclination).apply {
+val earthAxiallyTilted = earth.tilted(earthTilt.degrees)
+val earthOrbit = Orbit("Earth", earth, earthAxiallyTilted, sun, sunMass, earthOrbitRadius, earthOrbitEccentricity, earthOrbitInclination).apply {
     earth.userData.set("orbit", this)
 }
-val earthOrbitLine = makeOrbitLine(earthOrbitParams.semiMajorAxis, earthOrbitParams.eccentricity)
-val earthOrbit = Object3D().apply {
-    add(earthOrbitalPosition)
-    add(earthOrbitLine)
-}
 val moon = createMoon()
-val moonAxiallyTilted = Object3D().apply {
-    add(moon)
-    rotation.x = moonTilt.degrees
-}
-val moonOrbitalPosition = Object3D().apply {
-    position.x = moonOrbitRadius * (1 - moonOrbitEccentricity)
-    add(moonAxiallyTilted)
-}
-val moonOrbitParams = OrbitParams("Moon", moonOrbitalPosition, earth, earthMass, moonOrbitRadius, moonOrbitEccentricity, moonOrbitInclination).apply {
+val moonAxiallyTilted = moon.tilted(moonTilt.degrees)
+val moonOrbit = Orbit("Moon", moon, moonAxiallyTilted, earth, earthMass, moonOrbitRadius, moonOrbitEccentricity, moonOrbitInclination).apply {
     moon.userData.set("orbit", this)
 }
-val moonOrbitLine = makeOrbitLine(moonOrbitParams.semiMajorAxis, moonOrbitParams.eccentricity)
-val moonOrbit = Object3D().apply {
-    add(moonOrbitalPosition)
-    add(moonOrbitLine)
+fun Object3D.tilted(tilt: Double) = Object3D().also {
+    it.add(this)
+    rotation.x = tilt.degrees
 }
-fun inclinedOrbit(inclination: Double, orbit: Object3D) = Object3D().apply {
-    rotation.z = inclination.degrees
-    add(orbit)
-}
-val issOrbitalPosition = Object3D()
-val issOrbitParams = OrbitParams("ISS", issOrbitalPosition, earth, earthMass, issOrbitRadius, issOrbitEccentricity, issOrbitInclination)
-val issOrbitLine = makeOrbitLine(issOrbitRadius, issOrbitEccentricity)
-val issOrbit = Object3D().apply {
-    add(issOrbitalPosition)
-    add(issOrbitLine)
-}
+
+val iss = Object3D()
+val issOrbit = Orbit("ISS", iss, Object3D(), earth, earthMass, issOrbitRadius, issOrbitEccentricity, issOrbitInclination)
 
 val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
     map = starsTex
@@ -80,9 +34,9 @@ val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
 val scene = createScene()
 fun createScene() = Scene().apply {
     add(stars)
-    earthOrbitalPosition.add(inclinedOrbit(moonOrbitInclination, moonOrbit))
-    earthOrbitalPosition.add(inclinedOrbit(issOrbitInclination, issOrbit))
-    sun.add(inclinedOrbit(earthOrbitParams.inclination, earthOrbit))
+    earthOrbit.position.add(moonOrbit.orbit)
+    earthOrbit.position.add(issOrbit.orbit)
+    sun.add(earthOrbit.orbit)
     add(sun)
     loadISS()
     add(camera.apply {
@@ -141,18 +95,16 @@ fun createSun() = Mesh(SphereGeometry(sunRadius, 100, 100), MeshStandardMaterial
     }
     focusables.add(this)
 }
-lateinit var iss: Object3D
 fun loadISS() {
     GLTFLoader().apply {
         load("iss/scene.gltf", {
-            iss = it.scene
+            iss.add(it.scene)
             iss.rotation.y = PI/2
             iss.rotation.z = PI/2
             iss.name = "ISS"
-            iss.position.z = issOrbitRadius
             iss.scale.multiply(Vector3(0.01, 0.01, 0.01))
-            issOrbitalPosition.add(iss)
-            iss.userData.set("orbit", issOrbitParams)
+            issOrbit.position.add(iss)
+            iss.userData.set("orbit", issOrbit)
             console.log(iss)
             focusables.add(iss)
         }, {}, console::log)

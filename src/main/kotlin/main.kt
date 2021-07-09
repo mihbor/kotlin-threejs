@@ -80,14 +80,14 @@ fun animate() {
     elapsedTime += delta
 
     earth.rotation.y += delta * 1.daysPerRev
-    earthOrbitParams.deltaPosition(t0, elapsedTime)
+    earthOrbit.deltaPosition(t0, elapsedTime)
     moon.rotation.y += delta * 28.daysPerRev
-    moonOrbitParams.deltaPosition(t0, elapsedTime)
-    issOrbitParams.deltaPosition(t0, elapsedTime)
+    moonOrbit.deltaPosition(t0, elapsedTime)
+    issOrbit.deltaPosition(t0, elapsedTime)
 
     fixAngleToFocused()
 
-    val orbitOfFocused = focused.let { it.userData["orbit"] as OrbitParams? }
+    val orbitOfFocused = focused.let { it.userData["orbit"] as Orbit? }
 
     distanceText.set(TextProps(distanceToFocused().km
 //        + "\nearth: ${JSON.stringify(Vector3().apply(earth::getWorldPosition))}\ncamera: ${JSON.stringify(Vector3().apply(camera::getWorldPosition))}"
