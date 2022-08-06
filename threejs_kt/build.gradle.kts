@@ -1,18 +1,18 @@
 plugins {
-    id("org.jetbrains.kotlin.js")
+  id("org.jetbrains.kotlin.js")
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-    implementation(npm("three", "^0.120.0", generateExternals = false))
+  implementation(npm("three", "^0.120.0", generateExternals = false))
 }
 
 kotlin {
-    js {
-        browser()
-        binaries.executable()
-    }
+  js {
+    browser()
+    binaries.executable()
+  }
 }

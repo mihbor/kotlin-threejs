@@ -1,19 +1,19 @@
 plugins {
-    id("org.jetbrains.kotlin.js")
+  id("org.jetbrains.kotlin.js")
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-    api(project(":threejs_kt"))
-    implementation(npm("three-mesh-ui", "4.6.0"))
+  api(project(":threejs_kt"))
+  implementation(npm("three-mesh-ui", "4.6.0"))
 }
 
 kotlin {
-    js {
-        browser()
-        binaries.executable()
-    }
+  js {
+    browser()
+    binaries.executable()
+  }
 }
