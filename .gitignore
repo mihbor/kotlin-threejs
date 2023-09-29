@@ -2,3 +2,4 @@
 **/build/
 /.gradle/
 **/externals/
+/kotlin-js-store/yarn.lock

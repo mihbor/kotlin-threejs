@@ -73,8 +73,8 @@ fun pointerMoveHandler(event: Event) {
     mouse.x = 2.0 * event.clientX / window.innerWidth - 1
     mouse.y = 1 -2.0 * event.clientY / window.innerHeight
   }
-//    console.log("pointermove ${JSON.stringify(mouse)}")
 }
+
 fun wheelHandler(event: Event) {
   if (event is WheelEvent) {
     event.preventDefault()

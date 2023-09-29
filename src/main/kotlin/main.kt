@@ -109,4 +109,3 @@ fun animate() {
 fun findAncestorInList(child: Object3D, list: List<Object3D>): Object3D? =
   if (list.contains(child)) child
   else child.parent?.let { findAncestorInList(it, list)}
-
