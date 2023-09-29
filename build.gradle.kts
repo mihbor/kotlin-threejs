@@ -1,5 +1,5 @@
 plugins {
-  kotlin("js") version "1.6.10"
+  kotlin("js") version "1.8.21"
 }
 
 group = "me.mihbor"
@@ -9,24 +9,21 @@ repositories {
   mavenCentral()
 }
 
-dependencies {
-  api(project(":threejs_kt"))
-  api(project(":three-mesh-ui_kt"))
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:1.0.1")
-
-  testImplementation(kotlin("test-js"))
-}
-
 kotlin {
-  js(LEGACY) {
+  js(IR) {
+    browser()
     binaries.executable()
-    browser {
-      commonWebpackConfig {
-        cssSupport.enabled = true
-      }
-    }
     compilations["main"].packageJson {
       customField("homepage", "https://mihbor.github.io/kotlin-threejs")
+    }
+  }
+  sourceSets {
+    val main by getting {
+      dependencies {
+        api(project(":threejs_kt"))
+        api(project(":three-mesh-ui_kt"))
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:1.5.1")
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ import three.js.Color
 import three.js.Object3D
 import three.js.Vector3
 import three.mesh.ui.*
+import kotlin.Double.Companion.NaN
 
 val buttons = mutableListOf<Block>()
 val uiProps = BlockProps().apply {
@@ -22,9 +23,10 @@ val Number.km
 val distanceText = Text(TextProps(distanceToFocused().km))
 
 fun distanceToFocused(): Number {
-  val focusedPosition = Vector3().apply(focused::getWorldPosition)
-  val cameraPosition = Vector3().apply(camera::getWorldPosition)
-  return cameraPosition.distanceTo(focusedPosition)
+  return focused?.getWorldPosition(Vector3())?.let { focusedPosition ->
+    val cameraPosition = Vector3().apply(camera::getWorldPosition)
+    cameraPosition.distanceTo(focusedPosition)
+  } ?: NaN
 }
 
 fun createCoordinateDisplay() = Block(uiProps).apply {

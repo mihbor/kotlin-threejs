@@ -83,7 +83,7 @@ fun createSun() = Mesh(SphereGeometry(sunRadius, 100, 100), MeshStandardMaterial
 }).apply {
   name = "Sun"
   add(PointLight(0xffffff, 1))
-  val n = 0
+  val n = 1
   repeat(n) {
     val atmosphere = Mesh(SphereGeometry(sunRadius + 20000 + (100000/n)*it, 100, 100), MeshStandardMaterial().apply {
       color = Color("yellow")

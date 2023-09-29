@@ -87,7 +87,7 @@ fun animate() {
 
   fixAngleToFocused()
 
-  val orbitOfFocused = focused.let { it.userData["orbit"] as Orbit? }
+  val orbitOfFocused = focused?.let { it.userData["orbit"] as Orbit? }
 
   distanceText.set(TextProps(distanceToFocused().km
 //        + "\nearth: ${JSON.stringify(Vector3().apply(earth::getWorldPosition))}\ncamera: ${JSON.stringify(Vector3().apply(camera::getWorldPosition))}"
