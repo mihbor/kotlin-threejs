@@ -13,7 +13,7 @@ kotlin {
   sourceSets {
     val jsMain by getting {
       dependencies {
-        implementation(npm("three", "^0.120.0", generateExternals = false))
+        implementation(npm("three", "^0.157.0"))
       }
     }
   }
