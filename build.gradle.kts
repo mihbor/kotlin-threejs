@@ -1,5 +1,5 @@
 plugins {
-  kotlin("js") version "1.8.21"
+  kotlin("multiplatform") version "1.9.10"
 }
 
 group = "me.mihbor"
@@ -18,7 +18,7 @@ kotlin {
     }
   }
   sourceSets {
-    val main by getting {
+    val jsMain by getting {
       dependencies {
         api(project(":threejs_kt"))
         api(project(":three-mesh-ui_kt"))

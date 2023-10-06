@@ -1,18 +1,20 @@
 plugins {
-  id("org.jetbrains.kotlin.js")
+  kotlin("multiplatform") version "1.9.10"
 }
 
 repositories {
   mavenCentral()
 }
 
-dependencies {
-  implementation(npm("three", "^0.120.0", generateExternals = false))
-}
-
 kotlin {
   js(IR) {
     browser()
-    binaries.executable()
+  }
+  sourceSets {
+    val jsMain by getting {
+      dependencies {
+        implementation(npm("three", "^0.120.0", generateExternals = false))
+      }
+    }
   }
 }
