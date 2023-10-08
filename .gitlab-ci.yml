@@ -5,9 +5,9 @@ before_script:
 pages:
   stage: build
   script:
-    - ./gradlew build
+    - ./gradlew jsBrowserDistribution
     - mkdir .public
-    - cp -r build/distributions/* .public
+    - cp -r build/dist/js/productionExecutable/* .public
     - rm -rf public
     - mv .public public
   artifacts:

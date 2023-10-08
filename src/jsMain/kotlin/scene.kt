@@ -3,10 +3,10 @@ import three.js.loaders.GLTFLoader
 import kotlin.math.PI
 
 val texLoader = TextureLoader()
+val starsTex = texLoader.load("tycho_skymap.jpg")
 val earthTex = texLoader.load("1_earth_16k.jpg")
 val moonTex = texLoader.load("8k_moon.jpg")
 val sunTex = texLoader.load("8k_sun.jpg")
-val starsTex = texLoader.load("tycho_skymap.jpg")
 
 val sun = createSun()
 val earth = createEarth().apply { focused = this }
