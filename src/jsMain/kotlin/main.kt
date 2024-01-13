@@ -40,8 +40,8 @@ val clock = Clock()
 val camera = PerspectiveCamera(60, window.aspectRatio, 0.5, 2e9)
 
 val renderer = WebGLRenderer((js("{}") as WebGLRendererParameters).apply{
-  antialias = false
-  logarithmicDepthBuffer = false
+  antialias = true
+  logarithmicDepthBuffer = true
 }).apply {
   document.body?.appendChild( VRButton.createButton(this) )
   document.body?.appendChild(domElement)

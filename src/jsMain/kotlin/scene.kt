@@ -30,6 +30,7 @@ val issOrbit = Orbit("ISS", iss, Object3D(), earth, earthMass, issOrbitRadius, i
 val stars = Mesh(SphereGeometry(1e9, 30, 30), MeshBasicMaterial().apply {
   map = starsTex
   side = BackSide
+  color = Color(0.2, 0.2, 0.2)
 })
 val scene = createScene()
 fun createScene() = Scene().apply {
@@ -82,22 +83,21 @@ fun createSun() = Mesh(SphereGeometry(sunRadius, 100, 100), MeshStandardMaterial
   emissiveIntensity = 2
 }).apply {
   name = "Sun"
-  add(PointLight(0xffffff, 1))
-  val n = 1
-  repeat(n) {
-    val atmosphere = Mesh(SphereGeometry(sunRadius + 20000 + (100000/n)*it, 100, 100), MeshStandardMaterial().apply {
-      color = Color("yellow")
-      transparent = true
-      opacity = 0.5/n
-      side = DoubleSide
-    })
-    add(atmosphere)
-  }
+  add(PointLight(0xffffee, 3, 1e9, 0))
+//  val n = 1
+//  repeat(n) {
+//    val atmosphere = Mesh(SphereGeometry(sunRadius + 20000 + (100000/n)*it, 100, 100), MeshStandardMaterial().apply {
+//      color = Color("yellow")
+//      transparent = true
+//      opacity = 0.5/n
+//      side = DoubleSide
+//    })
+//    add(atmosphere)
+//  }
   focusables.add(this)
 }
 fun loadISS() {
-  GLTFLoader().apply {
-    load("iss/scene.gltf", {
+  GLTFLoader().load("iss/scene.gltf", {
       iss.add(it.scene)
       iss.rotation.y = PI/2
       iss.rotation.z = PI/2
@@ -108,5 +108,4 @@ fun loadISS() {
       console.log(iss)
       focusables.add(iss)
     }, {}, console::log)
-  }
 }
