@@ -1,5 +1,5 @@
 plugins {
-  kotlin("multiplatform") version "1.9.10"
+  kotlin("multiplatform") version "2.2.10"
 }
 
 repositories {
@@ -14,7 +14,7 @@ kotlin {
     val jsMain by getting {
       dependencies {
         api(project(":threejs_kt"))
-        implementation(npm("three-mesh-ui", "6.5.3"))
+        implementation(npm("three-mesh-ui", "6.5.4"))
       }
     }
   }

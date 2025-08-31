@@ -1,5 +1,5 @@
 plugins {
-  kotlin("multiplatform") version "1.9.10"
+  kotlin("multiplatform") version "2.2.10"
 }
 
 repositories {
@@ -13,7 +13,7 @@ kotlin {
   sourceSets {
     val jsMain by getting {
       dependencies {
-        implementation(npm("three", "^0.157.0"))
+        implementation(npm("three", "0.179.0"))
       }
     }
   }

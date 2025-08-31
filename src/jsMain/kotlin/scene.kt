@@ -79,18 +79,20 @@ fun createMoon() = Mesh(SphereGeometry(moonRadius, 100, 100), MeshStandardMateri
 fun createSun() = Mesh(SphereGeometry(sunRadius, 100, 100), MeshStandardMaterial().apply {
   emissiveMap = sunTex
 //    color = Color("yellow")
-  emissive = Color("yellow")
+  emissive = Color(1.0, 1.0, 0.5)
   emissiveIntensity = 2
 }).apply {
   name = "Sun"
   add(PointLight(0xffffee, 3, 1e9, 0))
-//  val n = 1
+// doesn't work with logarithmic depth buffer
+//  val n = 5
 //  repeat(n) {
-//    val atmosphere = Mesh(SphereGeometry(sunRadius + 20000 + (100000/n)*it, 100, 100), MeshStandardMaterial().apply {
+//    val atmosphere = Mesh(SphereGeometry(sunRadius + 20000 + (400000/n)*it, 100, 100), MeshStandardMaterial().apply {
 //      color = Color("yellow")
 //      transparent = true
 //      opacity = 0.5/n
-//      side = DoubleSide
+//      side = BackSide
+//      renderOrder = -it
 //    })
 //    add(atmosphere)
 //  }

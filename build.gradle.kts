@@ -1,5 +1,8 @@
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
+
 plugins {
-  kotlin("multiplatform") version "1.9.10"
+  kotlin("multiplatform") version "2.2.10"
 }
 
 group = "me.mihbor"
@@ -31,4 +34,12 @@ kotlin {
 subprojects {
   group = rootProject.group
   version = rootProject.version
+
+  plugins.withType(YarnPlugin::class.java) {
+    rootProject.the<YarnRootExtension>().yarnLockAutoReplace = true
+  }
+}
+
+plugins.withType(YarnPlugin::class.java) {
+  rootProject.the<YarnRootExtension>().yarnLockAutoReplace = true
 }

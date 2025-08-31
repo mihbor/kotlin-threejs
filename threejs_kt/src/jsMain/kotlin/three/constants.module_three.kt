@@ -11,16 +11,15 @@ external enum class ShadowMapType {
 
 }
 
-open external class Side {
+open external class Side
 
-}
 external object FrontSide: Side
 external object BackSide: Side
 external object DoubleSide: Side
 
-external enum class Blending {
+open external  class Blending
 
-}
+external object AdditiveBlending: Blending
 
 external enum class BlendingEquation {
 
